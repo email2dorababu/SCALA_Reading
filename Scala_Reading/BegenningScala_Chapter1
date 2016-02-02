@@ -1,0 +1,5 @@
+Lightweight Syntax:
+no useless features of Java, like static members, primitive types, break and continue stmts,enums,or wild cards are just to name a few.
+
+CASE classes are the scala equivalent of Java POJOs.
+The essence of Case classes is that they don’t have all the boilerplate code that goes with Java POJOs such as getter and setter methods, equals and hashCode methods, toString method to name a few.
