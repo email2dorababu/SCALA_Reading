@@ -105,5 +105,22 @@ Interactive Scala:
 The REPL is an excellent tool to learn the Scala language quickly. start REPL by typing scala in command prompt.
 
 HelloWorld program:
-scala> 
+scala> println("Hello World");
+
+Single line of code
+Scala> 1 +2
+res1: Int = 3
+Here the output is a result variable res1: Int = 3, res1 is of Int value.
+Any variables you created are available for the lifetime of your session, that is, you can use res1 from the previous output.
+scala> res1 * 10
+res2: Int = 30  the result is now res2.
+
+Lets create String variable;
+scala> val x="Hello World"
+x: String = Hello World
+
+scala> var xl=x.length
+xl: Int = 11   Automaitcally Scala Infers the type and returns Int value.
+
+
 
