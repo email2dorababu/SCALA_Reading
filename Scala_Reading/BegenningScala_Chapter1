@@ -232,3 +232,5 @@ println(i* j)
 In this program, we are iterating over 1 to 10 in an outer loop and assigning each number to i. 
 In the inner loop, we are also iterating from 1 to 10 and assigning each number to j. 
 The product of i * j is printed, so you’ll see 10 lines output. There are many more uses of the for comprehension that we’ll cover later.
+
+http://techbus.safaribooksonline.com/9781484202326/sec3_html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0ODQyMDIzMjYlMkZzZWMxNF9odG1sJnF1ZXJ5PQ==
