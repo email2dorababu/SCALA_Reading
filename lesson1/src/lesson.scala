@@ -8,4 +8,12 @@ object HelloWorld{
 	HelloWorld.greet()
 	} */
 
-println("Hello World");
+// println("Hello World");
+
+object HelloWorld{
+def main(args: Array[String]){
+println("Hello World")
+for {i <- 1 to10}
+println(i)
+}
+}

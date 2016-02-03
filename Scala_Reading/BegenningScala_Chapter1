@@ -5,7 +5,8 @@ Lightweight Syntax:
 no useless features of Java, like static members, primitive types, break and continue stmts,enums,or wild cards are just to name a few.
 
 CASE classes are the scala equivalent of Java POJOs.
-The essence of Case classes is that they don�t have all the boilerplate code that goes with Java POJOs such as getter and setter methods, equals and hashCode methods, toString method to name a few.
+The essence of Case classes is that they don�t have all the boilerplate code that goes with Java POJOs such as getter and setter methods, 
+equals and hashCode methods, toString method to name a few.
 
 POJO in scala
 case class Book(var title: String, var noOfPages: Int)
@@ -15,7 +16,8 @@ scalac Book.scala  -> this generates Book.class and Book$.class. we then disasse
 javap Book -> you cab see all java code is power packed in a single line of scala code.
 
 Date:Feb32016
-The javap command is called the Java “disassembler” because it takes apart class files and tells you what’s inside them. 
+The javap command is called the Java “disassembler” because it takes apart class files and tells you what’s inside them.
+
 
 Multiparadigm Language:
 -------------------------
@@ -122,5 +124,111 @@ x: String = Hello World
 scala> var xl=x.length
 xl: Int = 11   Automaitcally Scala Infers the type and returns Int value.
 
+Now access a Java library, Java.Util
+
+scala> import java.util._
+Now we have java.util library in session, we can use it.
+
+scala> val d= new Date
+d: java.util.Date = Wed Feb 03 17:24:43 IST 2016
+
+A help system is available and can be started by entering the :help command
+
+You can enter into Multi line mode on REPL by :paste  mode, and we can load external source code and libraries can be loaded at any time.
+-----------------------------
+scala> :paste
+// Entering paste mode (ctrl-D to finish) 
+
+val v=5
+if (v==5)
+print ("true ")
+else
+print ("false ")
+
+// Exiting paste mode, now interpreting.
+
+true v: Int = 5
+-----------------------------
+
+To quit the interpreter, type :quit or :q
+scala. :quit
+
+Homework: See each command in :help and write some examples. 
+
+-------------------------------------------------------------------------
+Scala Scripts:
+------------
+To execute Scala code in another way is , put the code (here it is println("Hello World"); )  into a text file and save it with an extension .scala
+execute the code by 
+>scala filename.scala  you will see the output
+
+println is a thin layer on top of System.out.println(). this is like java.lang package that is automatically imported in every Java program.
+
+Scala scripts do not have an explicit main method.
+In fact, when you run your script, Scala wraps the entire file into the main method of a class, 
+compiles the code, and calls the generated main method. All you have to do is put valid Scala code in a file.
+
+You can access the command-line arguments in your script with the argv variable, which is an Array[String].
+
+------------------------------------------------------
+Compile Scala Programs: 
+---------------------------
+You can compile scala code using scalac command line tool.
+to compile multiple source files into one,
+>scalac file1.scala file2.scala
+
+Fast scala compiler "fsc" is available in REPL command. 
+>fsc file1.scala file2.scala
+
+fsc is a separage compiler process that runs continuousely, waiting for new compiler jobs, even after the compilation process is finished.
+This results in much faster compilation time.
 
 
+For larger projects, you may need to use maven or ant.
+similar to Maven or Ant, SBT4 is an open source build tool for Scala and Java projects, which provides native support for 
+compiling Scala code and integrating with many Scala test frameworks and dependency management, continuous compilation, testing, and deployment.
+-----------------------------------------------------------------------------------------------------
+First Scala Programs:
+---------------------
+If you want to compile code using scalac, you need to add an object with a main method.
+
+HelloWorld with a main method. Note that semicolon at the end of a statement is usually optional.
+
+object HelloWorld{
+def main(args: Array[String]){
+println("Hello World")
+}
+}
+
+This is a singleton object, similar to static member in java.
+
+Scala program processeing starts from the main method, which is mandatory for every Scala program.
+Note that in the above example, main method is defined in an Object, not in a class.
+Also here main method is not marked static.
+The main method is an instance method on a singleton object that is automatically instantiated.
+There is no return type. Actually there is "Unit", which is similar to void, but it is inferred by the compiler.
+
+You can explicitly specify the return type by putting a colon and the type after the parameters:
+def main(args: Array[String]) : Unit = {                       }
+
+Scala uses the "def" keyword to tell the compiler that this a method.
+There is no access level modifiers in Scala, public access level is default in scala.                        
+-----------------------------
+
+Printing Some Numbers:
+
+Let’s write a program that will print the numbers from 1 to 10 in the Print1.scala file:
+for {i <- 1 to10}
+println(i)
+
+
+This program assigns the numbers 1 to 10 to the variable and then executes println(i).
+
+for means much more in Scala than in Java. You can nest expressions in a for comprehension (the fancy Scala name for the for statement). 
+In the below scalafile, put
+for {i <- 1 to10
+j <- 1 to10}
+println(i* j)
+In this program, we are iterating over 1 to 10 in an outer loop and assigning each number to i. 
+In the inner loop, we are also iterating from 1 to 10 and assigning each number to j. 
+The product of i * j is printed, so you’ll see 10 lines output. There are many more uses of the for comprehension that we’ll cover later.
