@@ -11,4 +11,4 @@ Get the java equivalent of Book POJO by
 scalac Book.scala  -> this generates Book.class and Book$.class. we then disassemble Book.class with javap command
 javap Book
 
-abc
+The javap command is called the Java “disassembler” because it takes apart class files and tells you what’s inside them. 
