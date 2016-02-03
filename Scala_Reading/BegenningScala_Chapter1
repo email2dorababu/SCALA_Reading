@@ -1,4 +1,7 @@
+Date:Feb22016
+
 Lightweight Syntax:
+-------------------------
 no useless features of Java, like static members, primitive types, break and continue stmts,enums,or wild cards are just to name a few.
 
 CASE classes are the scala equivalent of Java POJOs.
@@ -9,6 +12,43 @@ case class Book(var title: String, var noOfPages: Int)
 
 Get the java equivalent of Book POJO by
 scalac Book.scala  -> this generates Book.class and Book$.class. we then disassemble Book.class with javap command
-javap Book
+javap Book -> you cab see all java code is power packed in a single line of scala code.
 
+Date:Feb32016
 The javap command is called the Java “disassembler” because it takes apart class files and tells you what’s inside them. 
+
+Multiparadigm Language:
+-------------------------
+Scala's syntax and type inferencing will reduce the boilerplace code needed when writing programs in Java. 
+Boilerplace - is the sections of code that Have to be included in many places with little or no alteration.
+used in the context of - programmer must write a lot of code to do minimal job.
+
+Scala has many functional programming facilities, including features found in pure functional language such as Haskell.
+http://www.haskell.org/haskellwiki/Haskell
+
+Object-Oriented Language:
+-------------------------
+Scala is a PURE OOlanguage, i.e it does not include primitive types and sense everything as an object. 
+IMP- An Operation between two objects is viewed as an "invocation of a method" on the first operand to "send a message" to the second operand. 
+E.g. Numbers are also objects, they have methods. 1+2*3/x is equivalent to (1) .+ (((2).* (3)) ./(x))
+
+Scala does not have static members like Java, becuase static members are not associated with any actual instance.
+Instead of static members, Scala provides a singleton object declared using object keyword.
+
+object HelloWorld{
+	def greet(){
+		println("Hello World!")
+		}
+	}
+
+You can call HelloWorld.greet()
+	
+FUnctional Language:
+-------------------------
+Scala is a functional language. 
+Means, 
+you can pass functions to methods and functions, and 
+return functions from methods and functions.
+You can assign functions to variables.
+
+A Function is a block of code that takes parameters and returns a value. 
