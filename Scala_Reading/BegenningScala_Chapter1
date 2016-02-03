@@ -52,3 +52,58 @@ return functions from methods and functions.
 You can assign functions to variables.
 
 A Function is a block of code that takes parameters and returns a value. 
+Functions too must be objects in Scala, because everything is an object in Scala.
+
+E.g. to define a function that returns square of number, simple square function
+	(i: Int) => {i * i}  this defines a function that takes an Int parameter and returns a square of the Int value.
+	You can assign the function to a variable, this is just like you assign any object to a variable and 
+	you can pass the function as an argument to a method, just as you would pass any other object as an arguement to a method. 
+ 	
+ 	Assign function to a variable -   val square =(i: Int) => {i * i} , here the variable square is an instance of a function.
+ 	You can invoke square just like how you call a method. - square(3)
+ 
+ Interoperability and Seamless Integration with Java:
+ --------------------------------------------------
+Scala can call any Java code, can subclass any java class and implement any java interface.
+Scala code, reuses Java libraries and Java types.
+Scala allows you to add value to existing java code. Scala designed for seamless interoperability with Java and 
+ultimately Scala programs compile to JVM bytecode.
+
+There are some features of scala, that cannot be accessed from Java.
+-----------------------------------------------------------------------------------------------
+
+Languages for JVM: 
+------------------------
+JVM is the runtime environment that provides you the ability to use different programming languages. With Java 8, Java is one of the many 
+languages that run on JVM.
+
+JVM languages can be largely classified into two types.
+Languages designed for JVM - e.g Clojure, Groovy, Java and Scala
+Existing Languages ported to the JVM - e.g JRuby, Jython, and Rhino
+
+Scala source code is intended to be compiled to Java bytecode, so that the resulting executable code runs on a Java virtual machine.
+Java libraries may be used directly in Scala code and vice versa.
+-----------------------------------------------------------
+
+Installing Scala:
+------------------------------
+As a JVM language, Scala requires the use of a Java runtime.
+Download binaries, and set SCALA_HOME, also set the SCALA_HOME/bin in Path.
+Just type scala, gives the scala prompt.
+
+D:\>scala
+Welcome to Scala version 2.11.7 (Java HotSpot(TM) Client VM, Java 1.8.0_66).
+
+When you see the above message and scala> prompt, you are in the Scala Interpreter, also called REPL(Read-Eval-Print Loop) and you are ready to start coding.
+
+Scala at CLI, and Scala Scripts:
+------------------------------
+Scala offers diff(3) ways to run programs, REPL Command line, Single-file Scripts and Compiled Scala programs into class that can be combined into JAR files as in Java.
+
+Interactive Scala:
+----------------
+The REPL is an excellent tool to learn the Scala language quickly. start REPL by typing scala in command prompt.
+
+HelloWorld program:
+scala> 
+
