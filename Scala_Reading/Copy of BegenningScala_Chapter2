@@ -1,0 +1,236 @@
+Date:Feb22016
+
+Lightweight Syntax:
+-------------------------
+no useless features of Java, like static members, primitive types, break and continue stmts,enums,or wild cards are just to name a few.
+
+CASE classes are the scala equivalent of Java POJOs.
+The essence of Case classes is that they don�t have all the boilerplate code that goes with Java POJOs such as getter and setter methods, 
+equals and hashCode methods, toString method to name a few.
+
+POJO in scala
+case class Book(var title: String, var noOfPages: Int)
+
+Get the java equivalent of Book POJO by
+scalac Book.scala  -> this generates Book.class and Book$.class. we then disassemble Book.class with javap command
+javap Book -> you cab see all java code is power packed in a single line of scala code.
+
+Date:Feb32016
+The javap command is called the Java “disassembler” because it takes apart class files and tells you what’s inside them.
+
+
+Multiparadigm Language:
+-------------------------
+Scala's syntax and type inferencing will reduce the boilerplace code needed when writing programs in Java. 
+Boilerplace - is the sections of code that Have to be included in many places with little or no alteration.
+used in the context of - programmer must write a lot of code to do minimal job.
+
+Scala has many functional programming facilities, including features found in pure functional language such as Haskell.
+http://www.haskell.org/haskellwiki/Haskell
+
+Object-Oriented Language:
+-------------------------
+Scala is a PURE OOlanguage, i.e it does not include primitive types and sense everything as an object. 
+IMP- An Operation between two objects is viewed as an "invocation of a method" on the first operand to "send a message" to the second operand. 
+E.g. Numbers are also objects, they have methods. 1+2*3/x is equivalent to (1) .+ (((2).* (3)) ./(x))
+
+Scala does not have static members like Java, becuase static members are not associated with any actual instance.
+Instead of static members, Scala provides a singleton object declared using object keyword.
+
+object HelloWorld{
+	def greet(){
+		println("Hello World!")
+		}
+	}
+
+You can call HelloWorld.greet()
+	
+FUnctional Language:
+-------------------------
+Scala is a functional language. 
+Means, 
+you can pass functions to methods and functions, and 
+return functions from methods and functions.
+You can assign functions to variables.
+
+A Function is a block of code that takes parameters and returns a value. 
+Functions too must be objects in Scala, because everything is an object in Scala.
+
+E.g. to define a function that returns square of number, simple square function
+	(i: Int) => {i * i}  this defines a function that takes an Int parameter and returns a square of the Int value.
+	You can assign the function to a variable, this is just like you assign any object to a variable and 
+	you can pass the function as an argument to a method, just as you would pass any other object as an arguement to a method. 
+ 	
+ 	Assign function to a variable -   val square =(i: Int) => {i * i} , here the variable square is an instance of a function.
+ 	You can invoke square just like how you call a method. - square(3)
+ 
+ Interoperability and Seamless Integration with Java:
+ --------------------------------------------------
+Scala can call any Java code, can subclass any java class and implement any java interface.
+Scala code, reuses Java libraries and Java types.
+Scala allows you to add value to existing java code. Scala designed for seamless interoperability with Java and 
+ultimately Scala programs compile to JVM bytecode.
+
+There are some features of scala, that cannot be accessed from Java.
+-----------------------------------------------------------------------------------------------
+
+Languages for JVM: 
+------------------------
+JVM is the runtime environment that provides you the ability to use different programming languages. With Java 8, Java is one of the many 
+languages that run on JVM.
+
+JVM languages can be largely classified into two types.
+Languages designed for JVM - e.g Clojure, Groovy, Java and Scala
+Existing Languages ported to the JVM - e.g JRuby, Jython, and Rhino
+
+Scala source code is intended to be compiled to Java bytecode, so that the resulting executable code runs on a Java virtual machine.
+Java libraries may be used directly in Scala code and vice versa.
+-----------------------------------------------------------
+
+Installing Scala:
+------------------------------
+As a JVM language, Scala requires the use of a Java runtime.
+Download binaries, and set SCALA_HOME, also set the SCALA_HOME/bin in Path.
+Just type scala, gives the scala prompt.
+
+D:\>scala
+Welcome to Scala version 2.11.7 (Java HotSpot(TM) Client VM, Java 1.8.0_66).
+
+When you see the above message and scala> prompt, you are in the Scala Interpreter, also called REPL(Read-Eval-Print Loop) and you are ready to start coding.
+
+Scala at CLI, and Scala Scripts:
+------------------------------
+Scala offers diff(3) ways to run programs, REPL Command line, Single-file Scripts and Compiled Scala programs into class that can be combined into JAR files as in Java.
+
+Interactive Scala:
+----------------
+The REPL is an excellent tool to learn the Scala language quickly. start REPL by typing scala in command prompt.
+
+HelloWorld program:
+scala> println("Hello World");
+
+Single line of code
+Scala> 1 +2
+res1: Int = 3
+Here the output is a result variable res1: Int = 3, res1 is of Int value.
+Any variables you created are available for the lifetime of your session, that is, you can use res1 from the previous output.
+scala> res1 * 10
+res2: Int = 30  the result is now res2.
+
+Lets create String variable;
+scala> val x="Hello World"
+x: String = Hello World
+
+scala> var xl=x.length
+xl: Int = 11   Automaitcally Scala Infers the type and returns Int value.
+
+Now access a Java library, Java.Util
+
+scala> import java.util._
+Now we have java.util library in session, we can use it.
+
+scala> val d= new Date
+d: java.util.Date = Wed Feb 03 17:24:43 IST 2016
+
+A help system is available and can be started by entering the :help command
+
+You can enter into Multi line mode on REPL by :paste  mode, and we can load external source code and libraries can be loaded at any time.
+-----------------------------
+scala> :paste
+// Entering paste mode (ctrl-D to finish) 
+
+val v=5
+if (v==5)
+print ("true ")
+else
+print ("false ")
+
+// Exiting paste mode, now interpreting.
+
+true v: Int = 5
+-----------------------------
+
+To quit the interpreter, type :quit or :q
+scala. :quit
+
+Homework: See each command in :help and write some examples. 
+
+-------------------------------------------------------------------------
+Scala Scripts:
+------------
+To execute Scala code in another way is , put the code (here it is println("Hello World"); )  into a text file and save it with an extension .scala
+execute the code by 
+>scala filename.scala  you will see the output
+
+println is a thin layer on top of System.out.println(). this is like java.lang package that is automatically imported in every Java program.
+
+Scala scripts do not have an explicit main method.
+In fact, when you run your script, Scala wraps the entire file into the main method of a class, 
+compiles the code, and calls the generated main method. All you have to do is put valid Scala code in a file.
+
+You can access the command-line arguments in your script with the argv variable, which is an Array[String].
+
+------------------------------------------------------
+Compile Scala Programs: 
+---------------------------
+You can compile scala code using scalac command line tool.
+to compile multiple source files into one,
+>scalac file1.scala file2.scala
+
+Fast scala compiler "fsc" is available in REPL command. 
+>fsc file1.scala file2.scala
+
+fsc is a separage compiler process that runs continuousely, waiting for new compiler jobs, even after the compilation process is finished.
+This results in much faster compilation time.
+
+
+For larger projects, you may need to use maven or ant.
+similar to Maven or Ant, SBT4 is an open source build tool for Scala and Java projects, which provides native support for 
+compiling Scala code and integrating with many Scala test frameworks and dependency management, continuous compilation, testing, and deployment.
+-----------------------------------------------------------------------------------------------------
+First Scala Programs:
+---------------------
+If you want to compile code using scalac, you need to add an object with a main method.
+
+HelloWorld with a main method. Note that semicolon at the end of a statement is usually optional.
+
+object HelloWorld{
+def main(args: Array[String]){
+println("Hello World")
+}
+}
+
+This is a singleton object, similar to static member in java.
+
+Scala program processeing starts from the main method, which is mandatory for every Scala program.
+Note that in the above example, main method is defined in an Object, not in a class.
+Also here main method is not marked static.
+The main method is an instance method on a singleton object that is automatically instantiated.
+There is no return type. Actually there is "Unit", which is similar to void, but it is inferred by the compiler.
+
+You can explicitly specify the return type by putting a colon and the type after the parameters:
+def main(args: Array[String]) : Unit = {                       }
+
+Scala uses the "def" keyword to tell the compiler that this a method.
+There is no access level modifiers in Scala, public access level is default in scala.                        
+-----------------------------
+
+Printing Some Numbers:
+
+Let’s write a program that will print the numbers from 1 to 10 in the Print1.scala file:
+for {i <- 1 to10}
+println(i)
+
+
+This program assigns the numbers 1 to 10 to the variable and then executes println(i).
+
+for means much more in Scala than in Java. You can nest expressions in a for comprehension (the fancy Scala name for the for statement). 
+In the below scalafile, put
+for {i <- 1 to10
+j <- 1 to10}
+println(i* j)
+In this program, we are iterating over 1 to 10 in an outer loop and assigning each number to i. 
+In the inner loop, we are also iterating from 1 to 10 and assigning each number to j. 
+The product of i * j is printed, so you’ll see 10 lines output. There are many more uses of the for comprehension that we’ll cover later.
+
+http://techbus.safaribooksonline.com/9781484202326/sec3_html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0ODQyMDIzMjYlMkZzZWMxNF9odG1sJnF1ZXJ5PQ==
