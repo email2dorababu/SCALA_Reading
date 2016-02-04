@@ -1,0 +1,45 @@
+
+
+Date Feb42016
+
+Chapter 2:
+Basics of Scala
+-----------------------------------------------
+
+Variables:
+----------------------
+There are 3 ways you can define variables
+
+VAL - Immutable variable, variable that cannot be changed
+VAR - Mutable variable is declared with the keyword var. But you cannot reassign to a different type.
+LAZY VAL - these variables are calculated once, the first time the variable is accessed. Only vals can be lazy variables.
+We use a Lazy Val if the variable may not be used and the cost of calculating it is very long.
+
+> val x=10   now x is available for use, you cannot change it.
+>x*x
+res0:Int=100
+
+res0+1
+res1: Int = 101
+res0+res1
+res2: Int = 201
+---
+var y=10
+again if you try to assign different type y=11.5 , gives error, because initial value is of int, but you are trying to assign double value.
+y=12 executes without any error.
+
+i.e like other oop languages, convertion to wider type is accepted, but convertion to smaller type gives error.
+---------
+val x=10e20  - immediately executed.
+val y=10e30	-  immediately executed.
+
+lazy val z=x*y   here the value is not calculated immediately.
+z:double =<lazy>
+
+var x=10   - immediately executed.
+------------------------------------------------------------------
+
+Scala Type Hierarchy:
+----------------------
+Threre are no primitive types in Scala.
+http://techbus.safaribooksonline.com/book/programming/scala/9781484202326/chapter-1-getting-started-with-scala/sec14_html?percentage=0&reader=html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0ODQyMDIzMjYlMkZzZWMyX2h0bWxfMiZxdWVyeT0=
