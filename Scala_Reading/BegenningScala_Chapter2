@@ -53,6 +53,16 @@ AllVal, AllRef have only Nothing Type, (note that there is no null type)
 (see the diag in )
 (http://techbus.safaribooksonline.com/book/programming/scala/9781484202326/chapter-2-basics-of-scala/sec2_html_2?percentage=0&reader=html)
 
+------------------------------------------------------------------
+
+Any, AnyVal, and AnyReg Types
+----------------------
+Class "Any" is the root of scala class hierarchy and it is an abstract class. every class inherits from this class.
+AnyVal, AnyRef extend Any type and these 3 are the 
+
+
+
+
 
 
 
