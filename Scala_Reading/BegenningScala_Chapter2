@@ -41,5 +41,18 @@ var x=10   - immediately executed.
 
 Scala Type Hierarchy:
 ----------------------
-Threre are no primitive types in Scala.
-http://techbus.safaribooksonline.com/book/programming/scala/9781484202326/chapter-1-getting-started-with-scala/sec14_html?percentage=0&reader=html#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0ODQyMDIzMjYlMkZzZWMyX2h0bWxfMiZxdWVyeT0=
+There are no primitive types in Scala. All data types are objects that have methods to operate on their data.
+All Scala types - from Numbers to Collections, exists as part of a type hierarchy.
+Every "class"  that you define in Scala, belongs to this hierarchy.
+Scala's Core types are -
+
+Any - AnyVal, AnyRef
+AnyVal - Numeric, Boolean, Char, Unit 
+AnyRef - All java.* ref types, All Scala.* ref types. (these all have null type)
+AllVal, AllRef have only Nothing Type, (note that there is no null type)
+(see the diag in )
+(http://techbus.safaribooksonline.com/book/programming/scala/9781484202326/chapter-2-basics-of-scala/sec2_html_2?percentage=0&reader=html)
+
+
+
+
