@@ -1,0 +1,22 @@
+Date: 4Mar2016
+Scala is a functional language. 
+Means, 
+you can pass functions to methods and functions, and 
+return functions from methods and functions.
+You can assign functions to variables.
+
+A Function is a block of code that takes parameters and returns a value. 
+Functions too must be objects in Scala, because everything is an object in Scala.
+
+e.g function to return square - (i: Int) => {i * i}
+Assign function to a variable -   val square =(i: Int) => {i * i}
+You can invoke square just like how you call a method. - square(3)
+
+Any variables you created are available for the lifetime of your session.
+You can enter into Multi line mode on REPL by :paste  mode, to exit press ctrl+D
+To quit the interpreter, type :quit or :q
+See each command in :help
+------------------------------------------------------------------------------------
+Compile Scala Programs:  ScalaC,  Fast scala compiler "fsc"
+-------------------------------------
+Variables  - VAL,VAR, LAZY VAL

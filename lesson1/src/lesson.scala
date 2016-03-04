@@ -13,7 +13,8 @@ object HelloWorld{
 object HelloWorld{
 def main(args: Array[String]){
 println("Hello World")
-for {i <- 1 to10}
-println(i)
+for {i <- 1 to 10   
+  j <- 1 to 20}
+ println(j,i)
 }
 }
