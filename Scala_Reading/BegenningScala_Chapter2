@@ -58,9 +58,39 @@ AllVal, AllRef have only Nothing Type, (note that there is no null type)
 Any, AnyVal, and AnyRef Types
 ----------------------
 Class "Any" is the root of scala class hierarchy and it is an abstract class. every class inherits from this class.
-AnyVal, AnyRef extend Any type and these 3 are the 
+AnyVal, AnyRef extend Any type.
+
+Numeric Types:
+Scala supports automatic conversion from one type to another type in the below order. 
+Conversion in reverse order is not allowed.
+
+Byte=>Short=>Int=>Long=>Float=>Double
+Byte can be converted to any other type. e.g
+val x: Byte=30 ,  val Y: Short=x , val z:Double =Y
+
+val a: Int =x  -> gives error: type mismatch.
+
+Boolean type is limited to true or false.  val x=!false  gives x:Boolean =true.
+
+Char literals are wirtten in single-quotes. val x='X'
 
 
+UNIT type - is used to define a function that doesn't return data. Similar  to void keyword.\
+
+val empty=() -> empty: Unit=() empty parentheses is the Unit literal.
+it is also used in Main method. 
+def main(args: Array[String]) : unit ={ }
+
+Nothing and Null types:
+Null is not a member of any type. 
+Nothing is a subtype of every other type to provide a compatible return type for 
+operations that affect a program's flow.
+One of the usages of Nothing is that it signals abnormal termination. it guarnatees to have zero instances.
+It is best practice in scala, that never use null values.
+
+Instead of null, use an 'Option' instead.
+
+Note that String is not discussed here. because String type in Scala is built on the String type of Java.
 
 
 

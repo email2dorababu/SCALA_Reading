@@ -20,3 +20,4 @@ See each command in :help
 Compile Scala Programs:  ScalaC,  Fast scala compiler "fsc"
 -------------------------------------
 Variables  - VAL,VAR, LAZY VAL
+-----------------------------------------------------------------
