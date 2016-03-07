@@ -1,0 +1,126 @@
+Scala Best Practices
+-----------------------
+Recognize the functional style:
+Scala supports both Functional and imperative style of programming.
+for a Java programmer scala allows you to program in imperative style. But it encourages functional approach.
+
+However, Programming in functional style proves to be frighten Java programmer, it enables you to write concise and less error-prone approach.
+E.g. way to distinguish functional/imperative is: using vars signify imperative style and vals is functional approach.
+In Functional style, your program should be free of vars.
+
+e.g. we have val strArray = Array("Vishal Layka", "David Pollak"), now we need to print this.
+Java programmer b4 moved to scala, you might write a while loop like.
+
+PROGRAM 1
+def print(strArray: Array[String]): Unit = {
+	var i = 0
+	while (i <strArray.length) {
+	println(strArray (i))
+	i += 1
+	} }
+	
+Functional Style:
+-------------
+PROGRAM 2
+def print(strArray: Array[String]): Unit = {
+strArray.foreach(println) }
+
+You can see functional code is much clearer, more concise and less error-prone than original imperative code.
+PROGRAM 2 also not purely functional.(we will transform it to purely functional in the next section).
+------------------------------------------------------------------------------------------------------------------
+
+Writing Pure Functions:
+----------------------
+PROGRAM 2 is functional but not purely functional. Because it causes side effects.
+The side effect is that it prints the output to the output stream.
+The functional equivalent will be a more defining method that "manipulates the passed args" for printing.
+e.g A function with no side effect is the one that does not print it and returns the formatted string for printing.
+PROGRAM 3:
+def formatArgs(strArray: Array[String]) = strArray.mkString(":")
+**************
+NOTE: If a function's result type is UNIT, the function has side effects.
+**************
+The PROGRAM 3 is purely functional, i.e it does not cause any side effect affected by var.
+"mkString" - defined on collections that is meant to return a string that results from calling toString on each element.
+You can mkString on any iterable collection.
+The overridden toString method is used to return the string representation of an object, shown below PROGRAMM 4
+
+PROGRAM 4:
+ val x = List("x", "y", "z")
+println(x.mkString(" : "))
+
+Using the PROGRAM 3, formatArgs to print is -
+PROGRAM 5:
+val strArray = Array("Vishal Layka", "David Pollak")
+def formatArgs(strArray: Array[String])= strArray.mkString(":")
+println(formatArgs(strArray))
+--------------------------------------------------------------------------------------------------------------------------------
+
+Leverage Type Inferencing:
+-------------------------
+Scala is a statically typed language: 
+Statically typed programming languages do type checking (the process of verifying and enforcing the constraints of types) at compile-time as opposed to run-time. 
+Dynamically typed programming languages do type checking at run-time as opposed to Compile-time.
+
+In a statically typed language the values and the variables have types.
+In a dynamic type system, unlike static typing, only values have types, variables do not have types.
+ 
+In Type inferred language, you no need to write boilerplate code because this boilerplate code is inferred by scala.
+But this type inference is the feature of a dynamic type language. In this manner, Scala brings best of the two worlds.
+
+PROGRAM 6:
+How Type Inferencing Works
+
+val books = Array(
+Map("title" -> "Beginning Scala", "publisher" -> "Apress"),
+Map("title" -> "Beginning Java", "publisher" -> "Apress")
+)
+Here you have not mentioned only the array and map, not their types. But on the REPL you can see, the scala compiler inferred the types of the array and the map.
+
+So, LET THE TYPE INFERENCE DETERMINE THE TYPE TO TRIM DOWN the CODE.
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+Think Expressions  - there is no need for a return statement. 
+-----------------
+
+Java programmer may write the code like: 
+def phoneBanking(key: Int) : String = {
+var result : String = _
+errorCode match {
+case 1 =>
+result = "Banking service"
+case 2 =>
+result = "Credit cards"
+case _ =>
+result = "Speak to the customer executive"
+}
+return result;
+}
+
+The code while flowing through a pattern match, assigns strings to the 'result' variable.
+To improvise on this code you need to follow an expression-oriented approach:
+i) first and foremost is adopt a functional style i.e replace val instead of var. i.e result variable is changed to val.
+ii) instead of assigning through the case statements, use the last expression of the case statement for assigning the result.
+
+Expression oriented style:
+def phoneBanking (key: Int) : String = {
+val result = key match {
+case 1 => "Banking service"
+case 2 => "Credit cards"
+case 3 => "Speak to the customer executive"
+}
+return result
+}
+
+
+**************************
+Note  The key to using expressions is realizing that there’s no need for a return statement.
+**************************
+------------------------------------------------------------------------------------------------------
+
+Focus on Immutability :
+-----------------------
+In Java, Mutability is the default. Varibles are mutable unless they are marked final.
+Java Beans have getters and setters. Data structures in java are instantiated, set and passed along to other methods.
+In Scala code - first you should do is use immutable collections classes by default.
+if you are using mutable collections, make comment in your code as to why you choose mutability?
+Some places mutable makes sense, e.g when you are building a List, using ListBuffer is more efficient.
