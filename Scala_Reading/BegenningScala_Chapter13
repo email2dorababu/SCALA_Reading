@@ -119,8 +119,418 @@ Note  The key to using expressions is realizing that there’s no need for a ret
 
 Focus on Immutability :
 -----------------------
-In Java, Mutability is the default. Varibles are mutable unless they are marked final.
+In Java, Mutability is the default. Variables are mutable unless they are marked final.
 Java Beans have getters and setters. Data structures in java are instantiated, set and passed along to other methods.
 In Scala code - first you should do is use immutable collections classes by default.
 if you are using mutable collections, make comment in your code as to why you choose mutability?
 Some places mutable makes sense, e.g when you are building a List, using ListBuffer is more efficient.
+but donot return ListBuffer, return List. this is similar to using StringBuilder in java but ultimately returning a String.
+
+So Use immutable collections by default , and use mutable data structures with a justification.
+
+Use vals by default, and only use vars if there is a good reason that is justified by a comment.
+
+PROGRAM 10. A Mutable Implementation of read
+
+def read1(in: java.io.BufferedReader): List[String] = {
+var ret: List[String] = Nil
+var line = in.readLine
+while(line!=null) {
+ret ::= line
+line = in.readLine
+}
+ret.reverse
+}
+The code in PROGRAM 10 is readable but uses a couple of vars. Let’s rewrite the code without vars and see how we can use tail recursion to give us a while loop (see Listing 13-12):
+
+PROGRAM 11. Immutable Implementation of read
+
+def read2(in: java.io.BufferedReader): List[String] = {
+def doRead(acc: List[String]):List[String] = in.readLinematch{
+case null=> acc
+
+case s => doRead(s :: acc)
+}
+doRead(Nil).reverse
+}
+
+Look ma, no vars. We defined the doRead method, which reads a line of input. 
+If the line is null, we return the accumulated List. If the line is non-null, we call doRead with the accumulated List. 
+Because doRead is in the scope of read2, it has access to all of read2’s variables. 
+doRead calls itself on the last line, which is a tail call. 
+The Scala compiler optimizes the tail call into a while loop, and there will only be one stack frame created no matter how many lines are read. 
+The last line of read2 calls doRead with Nil as the seed value for the accumulator.
+
+Using vals in your code makes you think about alternative, immutable, functional code. 
+This small example demonstrates that removing vars leads to refactoring. 
+The refactoring leads to new coding patterns. The new coding patterns lead to a shift in your approach to coding. 
+This shift in approach yields transformative code that has fewer defects and is easier to maintain.
+------------------------------------------------------------------------------------------------------------------------------------------------
+
+Keep Methods Short:
+------------------
+See whether you can code methods in a single line. if not a single line, see whether you can code them in a single statement.
+
+A Shorter Implementation of read
+
+private def readLines(in:java.io.BufferedReader,
+acc:List[String]): List[String] =
+in.readLinematch {
+case null => acc
+case s => readLines(in,s :: acc)
+}
+
+def read3(in: java.io.BufferedReader): List[String] =
+readLines(in,Nil).reverse
+
+When you code Scala, try not to have a curly brace around the method body. 
+If you can’t write your code this way, you have to justify to yourself why your method should exceed a single statement. 
+Keeping methods short allows you to encapsulate a single piece of logic in a method and have methods that build upon each other.
+ 
+It also allows you to easily understand the logic in the method.
+
+------------------------------------------------------------------------------------
+Use Options Instead of Null Testing
+----------------------------------
+The first thing to do is ban null from any of your code.
+You should never return null from a method—ever, ever, ever. 
+If you are calling Java libraries that may return null or throw an exception because of input problems, convert these to Options.
+We did this for parsing Strings to Ints. The pattern is basic: no nulls.
+
+
+When you write code, ban null from your code. In the case of uninitialized instance variables, 
+either assign a default value that is not null or, if there’s a code path where the variable could be used prior to 
+initialization, use Option, and the default value becomes None.
+
+If there’s no logical value that can be returned from a method given legal input, the return type should be Option. \
+The get method should never be called on an Option. Instead, Options should be 
+unpacked using map/flatMap, the for comprehension, or pattern matching.
+
+The first benefit using Option is the obvious avoidance of null pointer exceptions. 
+The second benefit is a little more subtle. The use of Option and the transformative nature of mapping Options leads to a different style of approaching your code. 
+The style is more transformative, more functional. The impact of repeatedly using immutable data structures will move your brain toward the functional side.
+
+Java Method that Returns an Int : 
+public Int computeArea() { ... }
+
+This computeArea method returns, as you might expect, the area of type Int, but it might return null, 
+and you cannot tell just by looking at the method that it might return null. Because of this, the caller of the 
+Java method is obliged to put null checks in his code and, if the caller is lucky and the method never actually returns null, 
+the null checks merely clutter the caller’s code. 
+
+ Scala solves this problem by getting rid of null altogether and providing a new type for optional values, that is, 
+ values that may or may not be present by means of the Option class. 
+ Now we will show you how you can write computeArea method in Scala that may or may not return a value as:
+ 
+ ScalaMethod that May or May Not Returnan Int
+
+defcomputeArea: Option[Int] = { ... }
+The return type of the computeArea method is Option[Int] and merely by looking at this return type, 
+the caller of computeArea method will know that it may not always return an Int. And to complete the picture, 
+the computeArea method uses Some and None types to determine what to return as illustrated:
+for example, in one implementation fragment example of computeArea method.
+
+Program :  Using Some and None
+
+computeArea match {
+  case Some(area) => ...
+  case None => ...
+}
+
+Option, Some, and None used in this way is one of the several unique features of Scala that’s how that Scala is a state-of-the-art language. 
+This also means that when a Scala function always returns a value, its return type is not an Option type but the type of the object that the method returns.
+
+If the Scala function never returns null, why is there a Null type in Scala?
+Scala supports Null type for compatibility with Java.None is the counterpart to Some, 
+used when you’re using Scala’s Option class to help avoid null references.
+---------------------------------------------------------------------------------------------------------------------
+
+Refactor Mercilessly:
+---------------------
+In the beginning, you can write your Scala code as you would your Java code. It’s a great place to start. 
+Then, start applying the idioms you learned in the previous sections in this chapter.
+we start with the imperative code.
+Listing 13-17. Imperative Code
+
+	def validByAge(in: List[Person]): List[String] = {
+	varvalid:List[Person] = Nil
+	for(p<- in){
+	if (p.valid) valid = p :: valid
+	}
+	deflocalSortFunction(a: Person,b:Person) = a.age < b.age
+	val people = valid.sort(localSortFunction _)
+	varret: List[String] = Nil
+	
+	for(p<- people){
+	ret = ret ::: List(p.first)
+	}
+	
+	returnret
+	}
+
+i) Turn your vars into vals:
+Transforming vars to vals
+
+def validByAge(in: List[Person]): List[String] = {
+val valid:ListBuffer[Person] = newListBuffer // displacedmutability
+for(p<- in){
+if (p.valid) valid += p
+}
+deflocalSortFunction(a: Person,b:Person) = a.age < b.age
+val people = valid.toList.sort(localSortFunction _)
+val ret:ListBuffer[String] = newListBuffer
+for(p<- people){
+ret += p.first
+}
+ret.toList
+}
+
+ii) Turn your mutable data structures into immutable data structures
+Transforming Mutable Data Structures into Immutable Data Structures
+
+def validByAge(in: List[Person]): List[String] = {
+val valid = for (p<- in if p.valid) yieldp
+deflocalSortFunction(a: Person,b:Person) = a.age < b.age
+val people = valid.sort(localSortFunction _)
+for(p<- people)yield p.first
+}
+
+
+iii) Make your method into a single statement
+Making a Method into a Single Statement
+
+def validByAge(in: List[Person]): List[String] =
+in.filter(_.valid).
+sort(_.age < _.age).
+map(_.first)
+While you can argue that this is too terse, we can refactor another way as below
+
+iV) refactor your code:
+Refactoring in Another Way
+
+def filterValid(in: List[Person]) = in.filter(p=> p.valid)
+def sortPeopleByAge(in: List[Person]) = in.sort(_.age < _.age)
+def validByAge(in: List[Person]): List[String] =
+(filterValid_ andThen sortPeopleByAge_)(in).map(_.name)
+
+Either of the refactoring choices you make, the business logic of your code is a lot more visible. 
+The refactoring also moves you toward thinking about the transformations in your code rather than the looping constructs in your code.
+--------------------------------------------------------------------------------------------------------------------
+
+Compose Functions and Compose Classes:
+-------------------------------------
+In the previous example, we composed filter Valid and sortPeopleByAge into a single function. This function is the same as shown below.
+
+Function Composition : 
+(in: List[Person]) =>sortPeopleByAge(filterValid(in))
+
+However, the composition of the two functions results in code that reads like what it does. 
+We started by turning our methods into single statements. This makes testing easier and makes the code more readable. 
+Next we compose a new function by chaining together the two functions. Functional composition is a later stage Scala-ism, 
+but it results naturally from making methods into single statements.
+
+we explored how Scala’s traits can be composed into powerful, flexible classes that are more type-safe than Java classes. 
+As you evolve your Scala coding skills and begin to refactor classes rather than methods, start looking for common methods 
+across your interfaces and traits. Move methods from concrete classes into traits. 
+Soon, you’ll likely find that many of your classes have little in them other than the logic that is 
+specific to that class and the vals that are needed to evaluate that logic. 
+Once you reach this level in your coding, you will likely find that your traits are polymorphic, 
+that your traits represent logic that can be applied to a contained type, and then you can feel secure 
+that your mind has completely warped into thinking Scala.
+--------------------------------------------------------------------------------------------------------------------
+
+Scala Design Patterns:
+------------------------
+The design pattern is regarded as a reusable solution to a commonly occurring design problem in object-oriented paradigm, 
+traditionally popularized in Java world.
+Design patterns, however, are not programming language agnostic, that is to say, a design pattern in one programming language could be a 
+language primitive in another programming language. 
+
+The programming language influences and determines the need of using design patterns and even has a native support for the concept embodied in a pattern. 
+One classic example of this is the way the Singleton design pattern is implemented in Java and the way in which 
+the Singleton design pattern is a native feature of Scala.
+
+Singleton:
+++++++++++
+The Singleton pattern ensures that a class has only one instance, and provides a global point of access to it.
+Java implementation that involves a private static field, a private constructor, and a factory method.
+A Singleton in Java : instead of constructing the object with a new expression, the method getInstance is invoked.
+
+public  class  JavaSingleton{
+private staticJavaSingleton  instance  = null ;
+private JavaSingleton() { }
+public staticgetInstance ( ) {
+if( instance == null) {
+instance = new JavaSingleton();
+}
+return instance ;
+}
+}
+
+Below shows  a language construct in Scala provides direct support for the concept of a Singleton pattern.
+A Singleton in Scala
+
+object ScalaSingleton{}
+In Scala, an object is basically a singleton object. There is only instance of this object in any given program and it can be passed around.
+
+Factory Method
++++++++++++++++
+The Factory Method pattern is used to encapsulate the required functionality for selection and instantiation of the implementation class, 
+into a method called Factory Method.
+A Factory Method pattern removes the tight coupling between the client class and the service provider implementation classes by instantiating 
+a needed class and returning its super type.
+
+A Factory Method Pattern in Java
+
+public interface Vehicle {}
+
+private class Car implements Vehicle {}
+
+private class Bike implements Vehicle {}
+
+public class VehcileFactory {
+    public static Vehicle createVehicle(String type) {
+        if ("bike".equals(type)) return new Bike();
+        if ("car".equals(type)) return new Car();
+        throw new IllegalArgumentException();
+    }
+}
+
+VehicleFactory.createVehicle("car");
+
+below illustrates the Factory Method Pattern in Scala.
+Listing 13-26. A Factory Method Pattern in Scala
+
+trait Vehcile
+private class Car extends Vehcile
+private class Bike extends Vehicle
+
+object Vehicle
+  def apply(type: String) = kind match {
+    case "car" => new Car()
+    case "bike" => new Bike()
+  }
+}
+Vehicle("car")
+
+The Factory Method shown in Listing 13-26 is defined in the companion object—a singleton object with the same name, defined in the same source file.
+
+Strategy
+++++++++++++++
+The Strategy pattern allows an algorithm to be selected at runtime. The Strategy pattern defines a family of encapsulated algorithms and allows the 
+algorithm to vary loosely coupled from clients that use the algorithm. In Java, the Strategy pattern is implemented by creating a hierarchy of classes 
+that inherit from a base interface shown as below.
+
+Strategy Pattern in Java
+
+public interface Strategy {
+    int operation(int a, int b);
+}
+
+public class Add implements Strategy {
+    public int operation(int a, int b) { return a + b; }
+}
+
+public class Multiply implements Strategy {
+    public int operation(int a, int b) { return a * b; }
+}
+
+public class Context  {
+    private final Strategy strategy;
+
+    public Context(Strategy strategy) { this.strategy = strategy; }
+
+    public void execute(int a, int b) { strategy.operation(a, b); }
+}
+
+new Context(new Multiply()).execute(5, 5);
+Listing 13-28 illustrates Strategy pattern in Scala.
+Listing 13-28. Strategy Pattern in Scala
+
+type Strategy = (Int, Int) => Int
+
+class Context(operation: Strategy) {
+  def execute(a: Int, b: Int) { operation(a, b) }
+}
+
+val add: Strategy = _ + _
+val multiply: Strategy = _ * _
+
+new Context(multiply).execute(5, 5)
+As you can see in Listing 13-28, we use first-class functions in Scala to design the strategy pattern.
+
+
+Template Method
+++++++++++++++++++++++
+The Template Method pattern consists of an abstract class that defines some process in terms of abstract sub-methods. Listing 13-29 illustrates a Template Method pattern in Java.
+Listing 13-29. Template Method Pattern in Java
+
+public abstract class Template{
+public void process(){
+subMethodA();
+subMethodB();
+}
+protected abstract void subMethodA();
+protected abstract void subMethodB();
+}
+To use it, extend the Template and implement the abstract subMethods.
+Listing 13-30 illustrates the Template Method pattern in Scala.
+Listing 13-30. Template Method Pattern in Scala
+
+def process( operation
+subMethodA: () => Unit,
+subMethodB: () => Unit) =() => {
+subMethodA()
+subMethodB ()
+}
+As you can see, the Listing 13-30 passes the subMethods into a Function Builder. To use the Template Method pattern in Scala, we no longer need to define subMethods and subclasses. Instead of defining subMethods we use higher order functions; and instead of defining subclasses, we use function composition.
+
+
+Adapter
+++++++++++++++++++++
+The Adapter pattern allows the classes with incompatible interfaces to work together by converting the interface of a class into an expected interface. The Adapter pattern does this by defining a wrapper class around the object with the incompatible interface. Listing 13-31 illustrates the Adapter pattern using Java.
+Listing 13-31. Adapter Pattern Using Java
+
+public interface ServiceProviderInterface {
+    void service(String property);
+}
+public final class ServiceProviderImplementation{
+    void service(Stringtype, String property) { /* ... */ }
+}
+
+public class Adapter implements ServiceProviderInterface {
+    private final ServiceProviderImplementation impl;
+
+    public Adapter (ServiceProviderImplementation impl) { this.impl = impl; }
+
+    public void service(String property) {
+impl.service(TYPEA, property);
+    }
+}
+ServiceProviderInterface service = new Adapter(new ServiceProviderImplementation ());
+Scala provides a built-in concept of interface adapters, expressed as implicit classes. Listing 13-32 shows the Adapter pattern using Scala.
+Listing 13-32. Adapter Pattern Using Scala
+
+trait ServiceProviderInterface {
+  def service(message: String)
+}
+
+final class ServiceProviderImplementation {
+  def service(type: String, property: String) { /* ... */ }
+}
+
+implicit class Adapter(impl: ServiceProviderImplementation) extends ServiceProviderInterface {
+  def service(property: String) { impl.service(TYPEA, property) }
+}
+
+val service: ServiceProviderInterface = new ServiceProviderImplementation ()
+When the expected type of expression is ServiceProviderInterface, but a ServiceProviderImplementation instance is used, Scala compiler automatically wraps the ServiceProviderImplementation instance in the adapter class.
+
+
+Scala makes it easier than Java or Ruby for coders to implement architecturally solid designs.
+
+
+
+
+
+
