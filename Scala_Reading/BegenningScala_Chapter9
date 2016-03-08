@@ -1,0 +1,453 @@
+SCALA AND JAVA INTEROPERABILITY:
+----------------------------------
+Translating Java Classes to Scala Classes
+-------------------------------------------------------------------
+The interoperability between Scala and Java classes makes it straightforward to replace or extend an 
+existing Java class with a Scala class.
+
+A Class Declaration in Java
+public class Book {}
+
+Scala Equivalent of a Class Declaration
+class Book
+
+you don’t need braces when there’s no content and everything is public in Scala by default.
+
+Now below is a Java class with constructor that binds instance variables with accessors.
+
+public class Book {  
+// the constructor binds the instance variables isbn and title with accessors
+getIsbn and getTitle.
+
+  private final int isbn;
+  private final String title;
+
+  public Book(int isbn, String title) {
+    this.isbn = isbn;
+    this.title = title;
+  }
+
+  public int getIsbn() {
+    return isbn;
+  }
+
+  public String getTitle() {
+    return y;
+  }
+}
+
+Scala equivalent:
+class Book(val isbn: Int, val title: String)
+
+Here adding "val" makes constructor arg bind to a field of the same name.
+
+-----------------
+Java Constructor calling Super class:
+public class NonFiction extends Book {
+  public NonFiction(String title) {
+    super(title)
+  }
+}
+
+Scala equivalent:
+class NonFiction (title: String) extends Book(title)
+
+Here you can see the primary constructor goes in the declaration. What about mutable constructors??
+
+i.e above places, the variables are final, (so we can replace with val)
+Now what is the case of mutable variables, used by consturctors?
+-----------------
+Mutable Instance Variable in Java
+
+public class Book {
+  private String title = "Beginning Scala";
+
+  public String getTitle() {
+    return title;
+  }
+
+  public void setTitle(String t) {
+title = t;
+  }
+}
+
+Scala equivalent:   Just by writing "var" in the class body defines a mutable field.
+class Book {
+  var  title = "Beginning Scala"
+}
+
+---------------------
+Now Immutable instance variables:
+Immutable Instance Variable in Java
+
+public class Book {
+  private final intisbn = 999;
+
+  public int getIsbn() {
+    return isbn;
+  }
+}
+
+Scala equivalent:
+	class Book {
+	  val isbn = 999
+	}
+--------------------------------------------------
+TRANSLATING JAVA IMPORTS TO SCALA IMPORTS
+// import in Java
+importcom.modA.ClassA;
+import com.modB.ClassB1;
+import com.modB.ClassB2;
+importcom.modC.*;
+
+// import in Scala
+importcom.modA.ClassA;
+importcom.modB.{ClassB1, ClassB2} // You can stack multiple imports from the same package in braces.
+importcom.modC._ // Underscore in Scala imports is equivalent of * in Java imports.
+----------------------------
+
+How to translate multiple constructors Java class into Scala class.
+Java class with Multiple Constructors
+
+public class Book {
+	private Integer isbn;
+	private String title;
+	
+	public Book(Integer isbn) {
+		this.isbn = isbn;
+	}
+	
+	public Book(Integer isbn, String title) {
+		this.isbn = isbn;
+		this.title = title;
+	}
+	
+	public Integer getIsbn() {
+		return isbn;
+	}
+	public void setIsbn(Integer isbn) {
+		this.isbn = isbn;
+	}
+	
+	public String getTitle() {
+		return title;
+	}
+	public void setTitle(String title) {
+		this.title = title;
+	}
+}
+
+The Book class have 2 constructors,one takes isbn no, other takes isbn and title.
+
+Refactoring Java class into Scala class:
+class Book ( var isbn: Int, var title: String)
+REPL - val book = new Book(999, "Beginning Scala")
+
+but here we have not implemented constructor that  takes obly single parameter title.
+so if you call scala> val book2=new Book("begenning Scala") will give an error.
+
+
+To complete our refactoring of Java class, we need to add extra constructor, 
+Scala equivalent: 
+
+class Book ( var isbn: Int, var title: String) {
+def this( title: String) = this(0,title)
+}
+This is "auxillary constructor", aux constructor must immediately call another this(...) 
+constructor and call the primary constructor to
+make sure all the parameters are initialized.
+with the below class,
+class Book ( var isbn: Int, var title: String) {
+def this( title: String) = this(0,title)
+}
+we can run below two statements without any error.
+val book1 = new Book(999, "Beginning Scala")
+val book2 = new Book("Beginning Java")
+
+With this created instance, you can get access title and isbn and you can set the title also.
+  book1.title,   book2.title,   book1.isbn,  book2.title = "Beginning Groovy"   , book2.title
+----------------------------------------------
+
+but with below scala code - if you disassemble with scalac and javap, you can see 
+there are NO Getters and setters.
+class Book ( var isbn: Int, var title: String) {
+def this( title: String) = this(0,title)
+}
+>scalac Book.scala
+>javap Book
+
+Compiled from “Book.scala” defined above.
+
+public class Book {
+  public int isbn();
+  public void isbn_$eq(int);
+  public java.lang.String title();
+  public void title_$eq(java.lang.String);
+  public Book(int, java.lang.String);
+  public Book(java.lang.String);
+}
+
+Generating getters and setters that follow java convention is very imp when you need to interact 
+with a Java class or a 
+library that accepts only classes that confirm to the JavaBean Specification, which we see below
+---------------------------------------------------------------------------------------------------
+
+JavaBeans Specification Compliant Scala Classes:
+------------------------------------------------
+
+To ensure compatibility with Java frameworks, you may need Java-style getters and setters on 
+the fields of your class to interact with a Java class or library that accepts only classes 
+that conform to the JavaBean specification. To have Java-style getters and setters is to 
+annotate the field with 
+scala.beans.BeanProperty as shown in the following lines of command.
+
+ Annotating Constructor Parameter with @BeanProperty
+
+import scala.beans.BeanProperty
+class Book(@BeanProperty var isbn:Int, @BeanProperty var title:String)
+
+You can see how the @BeanProperty annotation works by compiling the Book class and then disassembling it.
+scalac Book.scala
+javap Book
+
+Compiled from “Book.scala”
+
+public class Book {
+  public int isbn();
+  public void isbn_$eq(int);
+  public void setIsbn(int);
+  public java.lang.String title();
+  public void title_$eq(java.lang.String);
+  public void setTitle(java.lang.String);
+  public int getIsbn();
+  public java.lang.String getTitle();
+  public Book(int, java.lang.String);
+}
+
+Now you can see the methods getTitle,setTitle,getIsbn and setIsbn, 
+have all been generated because of the @BeanProperty annotation. Note that without these methods, 
+your class will not follow the JavaBean Specification.
+
+Use the @BeanProperty annotation on your fields, also making sure you declare each field as a "var". 
+if you declare your fields as type "val", the setter methods (setTitle, setIsbn) won’t be generated.
+
+You saw how to use the @BeanProperty annotation on class constructor parameters. In the same manner, 
+you can also use the @BeanProperty annotation on the fields in a Scala class.
+
+-------------------------------------------------------------------------------------------------------
+
+Java Static Members and Scala Objects
+--------------------------------------
+Java code oftern refers to static keyword to implement a singleton object as shown below.
+A Singleton in Scala
+
+public class Book{
+    private static Book book;
+    private Book() {}
+    public static synchronized Book getInstance() {
+        if (book == null) {
+book = new Book();
+        }
+        return book;
+    }
+}
+
+
+
+There is no such thing as static in Scala. In Java, the static does not belong to an object, can’t be inherited, 
+and doesn’t participate in polymorphism, thus statics aren’t object-oriented. 
+
+Scala, on the other hand, is purely object-oriented. Scala does not support the static, but 
+instead provides the notion of an object in place of the class declaration.
+
+If you need to refactor Java code  into Scala, simply use the object declaration instead of class as shown below.
+
+Scala Equivalent of above code:
+
+object Book{
+}
+
+Scala objects give you extra advantage in that Scala objects can also extend interfaces and traits.
+
+Java class with Instance and Static Methods:
+
+public class Book {
+    public String getCategory() {
+        return "Non-Fiction";
+    }
+
+    public static Book createBook() {
+        return new Book();
+    }
+} 
+
+
+Scala provides the notion of companion object, which consists of an object that cohabits with a class of the 
+same name in  the same package and file. 
+ 
+ The companion object enables storing of static methods and from this, you have full access to the classes’ members, 
+ including private ones. 
+ Scala allows you to declare both an object and a class of the same name, placing the static members 
+ in the object and  the instance members in the class. 
+ The Scala equivalent of above listing is shown below.
+ 
+ Scala Equivalent of above listing:
+
+class Book {
+  defgetCategory() = " Non-Fiction"
+}
+object Book {
+  def createBook() = new Book()
+}
+---------------------------------------------------------------------------------------------------------------
+
+Hanling Exceptions::
+
+You can define the Scala method as shown below, without declaring that it throws an exception.
+A Scala Method that Throws an Exception :
+class SomeClass {
+	def aScalaMethod {
+		throw new Exception("Exception")
+	}
+	}
+This method can then be called from Java as shown below
+
+Calling a Scala Method from a Java Class:
+
+public static void main(String[] args) {
+	SomeClass s = new SomeClass();
+	s.aScalaMethod();
+}
+
+However, when the Java developer calls scalaMethod, the uncaught exception causes the Java method to fail:
+[error] (run-main) java.lang.Exception: Exception!
+java.lang.Exception: Exception!
+at SomeClass.aScalaMethod
+
+If you don’t mark the aScalaMethod method with the @throws annotation, a Java developer can call it without 
+using a try/catch block in their method,
+ or declaring that their method throws an exception.
+ For the Java callers of your Scala methods, add the @throws annotation to your Scala methods so they will 
+ know which  methods can throw 
+ exceptions and what exceptions they throw.
+ 
+ hows how to add an @throws annotation to let callers know that the aScalaMethod method can throw an Exception.
+Listing 9-33. Annotating Scala method with @throws
+
+class SomeClass {
+@throws(classOf[Exception])
+def aScalaMethod {
+throw new Exception("Exception")
+}
+}
+Your annotated Scala method works just like a Java method that throws an exception. 
+If you attempt to call aScalaMethod from a Java class without wrapping it in a try/catch block, 
+or declaring that your Java method throws an exception,
+the compiler (or your IDE) will throw an error.
+
+ n your Java code, you’ll write a try/catch block as usual to handle the exception:
+ Calling Annotated ScalaMethod from Java
+
+SomeClasss = new SomeClass();
+try {
+s.aScalaMethod();
+} catch (Exception e) {
+System.err.println("Caught the exception.");
+e.printStackTrace();
+}
+-----------------------------------------------------------------------------------------------------------------
+Java Interfaces and Scala Traits:
+-----------------------------
+A Java class can’t extend a Scala trait that has implemented methods. 
+To understand the problem let’s first look at a regular Java interface as shown below.
+
+A Regular Java Interface Declaration
+
+public interface Book {
+  public abstract boolean isBestSeller();
+}
+The Scala equivalent of above is shown as following:
+trait Book {
+  def isBestSeller: Boolean
+}
+
+isBestSeller is an abstract method. In Scala, methods are denoted with a def keyword. 
+But isBestSeller is an abstract method. How do we represent abstract method in Scala? 
+In Scala, if there is no = assignment, then the methods denoted with a def keyword or 
+the functions denoted with a val keyword are abstract.
+
+A Concrete Java Method
+
+public String someMethod(int arg1, boolean arg2) {
+  return "voila";
+}
+
+The Scala equivalent of above concrete method:
+def someMethod(arg1: Int, arg2: Boolean): String = "voila"
+
+in the above code,  =denotes the implementation.
+
+now we see An Abstract Java Method:
+abstract int doTheMath(int i);
+
+he Scala equivalent of an abstract Java method doStuff is shown in below
+def doTheMath(i: Int): Int
++++++
+Note  If there’s no definition provided with =, then it’s automatically abstract.
++++++
+
+Now let’s go back to the original problem. A Java class can’t extend a Scala trait that has implemented methods. 
+So if you are trying to use Scala a trait (that has implemented methods in it) from Java you will run into problems.
+
+A Scala Trait
+
+trait Computation {
+def add(a: Int, b: Int) = a + b
+}
+
+You’ve written a Scala trait with implemented methods and need to be able to use an add method from a Java application.
+A Java Application
+
+public class DoTheMath{
+public static void main(String[] args) {
+DoTheMath d = new DoTheMath();
+// do the math here
+}
+}
+
+The type Computation cannot be the superclass of Java class DoTheMath simply because a superclass in Java must 
+be a class; that is, Java class DoTheMath cannot use the extend keyword to extend Computation. Moreover, 
+the Java class DoTheMath cannot implement the trait Computation because in Java you implement interfaces, 
+and the trait Computation has an implemented behavior, so Computation is not a like a regular Java interface. 
+To be able to use the implemented method add of a Scala trait Computation from Java class DoTheMath, 
+you must wrap the trait Computation in a Scala class.
+
+below code shows a Scala class that wraps the trait Computation.
+Scala Class that Wraps the Trait Computation
+
+	class JavaInteroperableComputation extends Computation
+
+Now the Java class DoTheMath can extend the Scala Java Interoperable Computation class, 
+and access the add method as shown below.
+
+Accessing the add Method of the Scala Trait from Java Class
+
+	public class DoTheMath extends JavaInteroperableComputation{
+		public static void main(String[] args) {
+		DoTheMath d = new DoTheMath();
+		d.add(3,1);
+	 } 	}
+	 
+	 ++++
+	  Note  Wrap your Scala traits with implemented behavior in the Scala class for its Java callers.
+	 ++++
+---------------------------------------------------------------------------------------------------------
+
+how Scala is translated to Java, which is especially important if you call Scala code from Java. 
+You learned that in most cases, Scala features are translated to Java features so that 
+Scala can easily integrate with Java. 
+You learned how to handle features that are available in Java but not in Scala, 
+such as static members and checked exceptions, and how to use Scala features such as traits in Java code. 
+You also learned how Scala annotations help in integration—for example, generating JavaBean-style get and set. 
+Scala code is often used in tandem with large Java programs and frameworks.
+
