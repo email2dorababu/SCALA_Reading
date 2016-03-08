@@ -1,0 +1,118 @@
+Scala Type System :
+--------------------------------------------------------------------------------------------------------------------
+
+Unified Type System:
+Scala has a unified type system, 
+enclosed by the type "Any" at the top of the hierarchy and the type Nothing at the bottom of the hierarchy.
+Any
+	AnyVal - value types - such as Int and Boolean (primitive types of java are enclosed under AnyVal & 
+			 you can define your own AnyVal)
+	AnyRef - reference types, as in Java, corresponds to java.lang.Object, super type of all objects.
+	
+Because of this hierarchy, we can define methods that take Any, to be compatible with both scala.Int and 
+java.lang.String.
+
+Using Any : here Book() is of AnyRef, and x is AnyVal, but in the final statement, 
+we have added both of these to List. This is by using "Any".
+
+import scala.collection.mutable.ListBuffer
+val list = ListBuffer[Any]()
+val x= 2
+list += x
+class Book
+list += new Book()
+last statement output is 
+REPL> list.type = ListBuffer(2, Book@15e8485)	
+
+You can limit a method to only be able to work on Value Types: 
+def test(int: AnyVal) = ()
+test(5)
+test(5.12)
+test(new Object)
+
+test(5) takes an Int that extends AnyVal and test(5.12) takes a Double that also extends AnyVal. 
+Test(new Object) takes an Object that extends AnyRef. Test(new Object) fails to compile.
+REPL> test(new Object)
+<console>:9: error: type mismatch;
+The idea is that this method will only take Value Classes, be it Int or your own Value Type. 
+So, we imply Java code is not as type-safe as Scala code. 
+
+You’re probably thinking, “But Java is a statically typed language, 
+doesn’t it give me all the safety that Scala does?” The answer to that is no.
+
+Java’s Type Unsafety
+
+public class Bad {
+public static void main(String[] argv) {
+Object[] a = argv;
+a[0] = new Object();
+}
+}
+
+This is legal Java code, and here’s what happens when we run the code:
+> java Bad Hello
+Exception in thread "main" java.lang.ArrayStoreException: java.lang.Object at Bad.main(Bad.java:4)
+
+Java allows us to assign a String[] to Object[]. This is because a String is a subclass of Object, 
+so if the array was read-only, the assignment would make sense. However, the array can be modified.
+ The modification that we’ve demonstrated shows one of Java’s “type-unsafety” features.
+ 
+ e’ll discuss why this happened and the complex topic of invariant, covariant, and contravariant types 
+ later in this chapter. 
+ Let’s start looking at how Scala makes the architect’s job easier and also makes the coder’s job easier. 
+ ------------------------------------------------------------------------------------------------------------
+ 
+ Type Parameterization
+ ----------------------
+ Scala’s parameterized types are similar to generics in Java.
+ Scala’s parametrized types provide the same features as Java generics, but with extended functionalities.
+ ++++++
+ Note  Classes and traits that take type parameters are called generic; 
+ the types they generate are called parameterized type.
+ ++++
+ One straightforward syntactical difference is that Scala uses square brackets ([...]), 
+ while Java uses angle brackets (<...>). 
+ 
+ e.g. Scala List of Strings
+
+val list : List[String] = List("A", "B", "C")
+ 
+ Scala allows angle brackets to be used in the method name. 
+ So, to avoid ambiguities, Scala uses square brackets for parameterized types.
+
+ Types in Scala are used to define classes, abstract classes, traits, objects, and functions.
+ Type parameterization lets you make these generic. 
+ As an example, sets can be defined as generic in the following manner: Set[T]. 
+ 
+ However, unlike Java which allows raw types, in Scala you are required to specify type parameters, 
+ that is to say, the Set[T], is a trait, but not a type because it takes a type parameter.
+
+As a result, you cannot create variables of type Set as illustrated below:
+
+Scala Requires to Specify Type Parameters
+def test(s: Set) {} // this will not compile
+
+Instead, trait Set enables you to specify parameterized types, such as Set[String], Set[Int], or Set[AnyRef]
+Specifying Parameter Types
+
+def test(s: Set[AnyRef]) {}
+
+For example, trait Set in above line of code, defines a generic set where the specific sets are 
+Set[Int] and Set[String], and so forth. 
+Thus, Set is a trait, and Set[String] is a type. The Set is a generic trait.
+
+Note  In Scala, List, Set, and so on could also be referred as a type constructors, 
+because they are used to create specific types. You could construct a type by specifying a type parameter. 
+For example, List is the type constructor for List[String] and List[String] is a type. 
+While Java allows raw types, Scala requires that you specify type parameters and does not allow you to use 
+just a List in the place of a type, as it’s expecting a real type—not a type constructor.
+
+In the light of inheritance, type parameters raise an important question regarding whether Set[String] be 
+considered a subtype of Set[AnyRef]. 
+That is, if S is a subtype of type T, then should Set[S] be considered a subtype of Set[T]? 
+Next you will learn a generic type concept that defines the inheritance relation and answers 
+the aforementioned question.
+--------------------------------------------------------------------------------------------------------------------
+
+Variance :
+---------
