@@ -1,697 +1,204 @@
-Date 8 Mar 2016
+Date 9 Mar 2016
 
-Object Orientation in Scala:
-------------------------------
-
-Classes and Objects:
----------------------------------------------------------
-A class is a blueprint for creating objects.
-objects  are the concrete instances of a class.
-
-A class definition consists of field declarations and method definitions.
-
-Fields are used to store the state of an object and 
-methods may provide access to fields, and alter the state of an object.
-
-Let’s start with a simple example of a blueprint for creating Book objects:
-scala> class Book
-defined class Book
-
-This corresponds to  Java declaration:
-public class Book {
-}
-
-you can confirm this by decompiling the class with the following javap command
-
-scalac Book.scala
-javap -c Book
-
-Compiled from "Book.scala"
-public class Book {
-  public Book();
-    Code:
-       0: aload_0
-       1: invokespecial #12                 // Method java/lang/Object."<init>":()V
-       4: return
-}
-
-Once you have defined a class, you can create objects from the class with the keyword "new".
-scala> class Book
-defined class Book
-
-scala> new Book
-res0: Book = $iwC$$iwC$Book@3cd732
-scala> new Book()    // this also works.
-res1: Book = $iwC$$iwC$Book@3b0737
-
-+++++
-Note  In Scala, if the constructor or method takes zero parameters, you can omit the parameter list.
-+++++
-
-------------------------------------------------------------------------------------------
-
-Constructors:
--------------
-A class consists of class members such as fields and methods.
-Fields hold the state of an object and are defined with either val or var.
-Methods complete the computational tasks of the object and are defined with keyword def.
-In Scala, the entire body of the class is the constructor. 
-If the constructor takes zero parameters, you can omit the parameter list.
-We will learn some different configurations like constructors with parameters.
-
-Constructors with Parameters:
--------------------------------
-Scala differentiates between a constructor declared 
-	with val fields, 
-	with var fields, 
-	private val, or private var and 
-	fields without var or val.
-
-i) Parameters declared as a val:
-==================================
-class Book(val title:String) 
-
-If the constructor parameter is declared as a val, scala generates only a "getter" method for it.
-Setter method is not generated. this is because val is immutable by definition.   
-
-decoding .. javap -c Book
-
-public class Book {
-  public java.lang.String title();
-   
-  public Book(java.lang.String);
-   
-}
-
-ii) Parameters declared as a var:
-==================================
-class Book(val title:String)  - 
-If you decompile this code, you can see the generated mutator method with an unusual name, "title_$eq".
- 
- decoding .. javap -c Book
-Compiled from "Book.scala"
-public class Book {
-  public java.lang.String title();
-  
-  public void title_$eq(java.lang.String);
-  
-  public Book(java.lang.String);
- 
-}
-
-So when you set the field, like so
-book.title("new title")
-Scala converts it to the following:
-Book.title_$eq("Beginning Scala")
-
-
-scala>class Book(var title:String)
-scala> var book= new Book("Learning Scala")
-scala> book.title
-res2: String = Learning Scala
-scala> book.title="Learning Scala Adv"
-scala> book.title
-res3: String = Learning Scala Adv
-
-
-iii) Parameter Declared as a private val or var:
-==================================
-You can add the private keyword to a val or var field to prevent getter and setter methods from being generated.
-In this case the fields could only be accessed from within members of the class:
-
-class Book(private var title: String) {
-def printTitle {println(title)}
- }
- 
-decoding .. javap -c Book 
- public class Book {
-  public void printTitle();
-    
-  public Book(java.lang.String);
- 
-}
- -------- You can access the title only from printTitle
- 
- scala> val book = new Book("Beginning Scala")
-book: Book = $iwC$$iwC$Book@5ffc58
-
-scala> book.title
-<console>:14: error: variable title in class Book cannot be accessed in Book
-              book.title
-                   ^
-
-scala> book.printTitle
-Beginning Scala
-
-iii) Parameter Declared without val or var:
-==================================
-Scala does not generate getter or setter when neither val nor var are specified on constructor parameters.
-so without getters/setters, you cannot access the field title, as shown below.
-
-scala> class Book(title: String)
-defined class Book
-
-scala> val book = new Book("Beginning Scala")
-book: Book = $iwC$$iwC$Book@cfacf0
-
-scala> book.title
-<console>:14: error: value title is not a member of Book
-              book.title
-                   ^
- At first sight, parameter declared without val or var and the parameter declared as private val or private var 
- behaves in the same manner. But there is difference.
- 
- Parameter with val
-
-class Book(private val title: String) {
-  def printTitle(b: Book) {
-    println(b.title)
-  }
-}
- 
- scala> val book = new Book("Beginning Scala")
-book: Book = $iwC$$iwC$Book@4a152f
-
-scala> book.printTitle(new Book("Beginning Erlang"))
-Beginning Erlang
-
-"you can change the title of the Book" because the title is a private field 
-that is accessible to this object and the other objects of Book.
-
-Now, the parameter of the constructor is declared without val or var: 
-
-class Book(title: String) {
-  def printTitle(b: Book) {
-    println(b.title)
-  }
-}
-scala> class Book(title: String) {
-     |   def printTitle(b: Book) {
-     |     println(b.title)
-     |   }
-     | }
-<console>:10: error: value title is not a member of Book
-           println(b.title)
-                     ^
-          
-          
- Now  you have learned the different configurations of the constructor, 
- you can provide a default value for a constructor parameter that gives 
- other classes the option of specifying the parameter when calling the constructor.
-
-Here’s a simple declaration of a Book class with one constructor parameter named title that has 
-default value of “Beginning Scala”:
-class Book (val title: String = "Beginning Scala")
-
-Because the parameter is defined with a default value, you can call the constructor without 
-specifying a title value:
-scala> val book = new Book
-book: Book = Book@4123cd31
-scala> book.title
-res0: String = Beginning Scala
-
-You can also specify the title value of your choice when creating a new Book:
-scala> val book = new Book("new title")
-book: Book = Book@4cg3407d
-scala> book.title
-res1: String = new title
-
-You can also choose to provide named parameters as shown in the following code:
-scala> val book = new Book(title="Beginning Scala")
-book: Book = Book@46aaf1d2
-scala> book.title
-res0: String = Beginning Scala
-
-
-++++++++++++++++++++++++++++++
-Summary - private field is accessible to this object and the other objects of Book.
-fields without val or val are accessible only to "this" object.
-++++++++++++++++++++++++++++++
--------------------------------------------------------------------
-
-Auxiliary Constructor:
---------------------
-You can define one or more auxiliary constructors for a class to provide different ways to create objects.
-
-Auxiliary constructors are defined by creating methods named this.
-
-Auxiliary constructors must have different signatures.
-
-Each auxiliary constructor must begin with a call to a previously defined constructor.
-below  illustrates a primary constructor and two auxiliary constructors.
-
-Auxiliary Constructor:
-class Book (var title :String, var ISBN: Int) {
-
-		def this(title: String) {
-			this(title, 2222)
-		}
-		def this() {
-			this("Beginning Erlang")
-			this.ISBN = 1111
-		}
-	
-	override def toString = s"$title ISBN- $ISBN"
-}
-
-An auxiliary constructor just needs to call one of the previously defined constructors.
-For instance, the auxiliary constructor that takes the title parameter calls this(title, ISBN) and 
-the no-arg constructor this() calls this(title).
-
-So given these constructors, we can create Book objects as
-val book1 = new Book
-val book2 = new Book("Beginning Clojure")
-val book3 = new Book("Beginning Scala", 3333)
---------------------------------------------------------------------------------------------------------------------
-
-Method Declaration:
---------------------
-
-Scala method declarations have 
-	the "def" keyword + 
-	method name + 
-	parameters +
-	optional return type + 
-	"=" keyword +  and
-	Method body.
-	
-e.g. below method takes no parameters and returns a String:
-def myMethod():String ="Moof"
-
-e.g def myOtherMethod() = "Moof"  this method return type is not explicitly declared because the compiler infers
-the return type. if you cannot judge the return type , do not explicitly declare. if are sure about the return type
-declare it explicitly.
-
-You declare the parameters inside the method declaration’s parentheses. 
-
-The parameter name must be followed by the parameter’s type:
-def foo(a: Int):String = a.toString
-
-You can declare multiple parameters:
-def f2(a: Int, b:Boolean):String= if (b)a.toStringelse"false"
- 
- You can pass the "type of a parameter" or the "return type" - as a parameter.
- 
- scala>def list[T](p:T):List[T] = p :: Nil    - here the code takes a parameter 'p' and a type parameter 'T'
- and returns a List of T. 
- thus if you pass an Int, you will get a List[Int] and if you pass a String, you will get a List[String].
- 
- Mostly, the type inferencer calculates the type parameters so you don't have to explicitly pass them.
-  
- scala> def list[T](p:T):List[T] = p :: Nil
-list: [T](p: T)List[T]
-
-scala> list(1)
-res16: List[Int] = List(1)
-
-scala> list("Hello")
-res17: List[String] = List(Hello)
-
-note that the last parameter in the list may be repeated—a variable-length argument.
-If the last parameter is a variable-length argument, it is a Seq of the type of the variable-length argument, 
-so in this case the as parameter is a Seq[Int]:
-
-def largest(as: Int*): Int = as.reduceLeft((a, b)=> a maxb)
-A variable-length argument method may be called as follows:
-largest(1)
-largest(2,3,99)
-largest(33, 22,33,22)
-
-You can mix type parameters with variable-length arguments:
-def mkString[T](as: T*):String = as.foldLeft("")(_ + _.toString)
-
-
-And you can put bounds on the type parameters. In this case, 
-the types that are passed in must be Number or a subclass of Number:
-def sum[T <:Number](as:T*): Double = as.foldLeft(0d)(_ + _.doubleValue)
-
-Methods can be declared within any code scope, except at the top level, 
-where classes, traits, and objects are declared. 
-
-Methods can reference any variables in their scope as seen below-
-
-Methods can reference any variables in their scope
-
-def readLines(br: BufferedReader) = {
-var ret: List[String] = Nil
-
-defreadAll():Unit= br.readLinematch {
-case null =>
-case s => ret ::= s ; readAll()
-}
-
-readAll()
-ret.reverse
-}
-
-In this example, the readAll method is defined inside the scope of the readLines method. 
-Thus, the readAll method has access to the variables br and ret because these variables are within the scope 
-of the readLines method. 
-
-The readAll method calls a method on br, and it updates ret, even though these variables are not explicitly 
-passed to readAll. As we go through more examples in subsequent chapters, we’ll see how being able to 
-use methods within methods and having access to all the variables in scope comes in handy.
-
-Overriding methods in Scala is different than Java. 
-Methods that override declared methods must include the override modifier. 
-Methods that override abstract methods may include the override modifier as shown below
-
-An abstract method without override
-
-abstractclassBase {
-defthing: String
-}
-classOneextends Base {
-defthing= "Moof"
-}
-
-
-Methods that take no parameters and variables can be accessed the same way, and a val can override a def 
-in a superclass as shown below .
-This principle of uniform access turns out to be very useful.
-
-Using override
-
-classTwoextends One{
-overridevalthing= (new java.util.Date).toString
-}
-classThree extends One{
-overridelazy valthing= super.thing + (newjava.util.Date).toString
-}
-
--------------------------------------------------------------------------
-Code blocks
----------------------------------------------------------------------------
-Code Blocks:
-
-Method and varible definitios can be single lines:
-
-def meth9()="Hello World"
-
-Methods and variables ALSO can be defined in code blocks, denoted by curly braces {}
-Code blocks can be nested.
-
-Result of a code block is the last line evaluated in the code block as shown below.
-
-The result of a codeblock
-
-def meth3():String = {"Moof"}   - here Moof is the output scala> meth3()  res0: String = Moof
-def meth4():String = {
-val d = new java.util.Date()
-d.toString()
-}
-scala> meth4()  res1: String = Wed Mar 09 11:28:53 IST 2016
-
-
-Variable definitions can be code blocks as well - this is handy when defininng val variables. The logic required
-to compute the value is SIGNIFICANT (non-trivial)
-
-Variable definition code block
-
-val x3:String= {
-val d = new java.util.Date()
-d.toString()
-}
-
+Object Orientation in Scala:   cont...
 ------------------------------------------------------------------------------------------------------------------
+Inheritance:
+------------
+Scala supports single inheritance, not multiple inheritance.
+A child (or derived) class can have one and only one parent (or base) class.
+The sole exception is the root of the Scala class hierarchy, Any, which has no parent. 
 
-Call - by - Name :
-------------------
-In Java, all method invocations are call-by-reference(for obj) or call-by-value (for primitive types). 
-What this means is that the parameter’s value, or reference in the case of an AnyRef(java objects),
-is placed on the stack and passed to the callee.
+You saw that "classes" in Scala are declared very much like Java classes, but "can also have parameters".
 
-Scala gives you an additional mechanism for passing parameters to methods (and functions): call-by-name, 
-which passes a "code block" to the callee. 
+Vehicle class:
 
-+++++
-Each time the callee accesses the parameter, the code block is executed and the value is calculated. 
-+++++
-Call-by-name allows you to pass parameters that might take a longtime to calculate but may not be used. 
-Call-by-name also allows you to create flow of control structures such as while, doWhile, and so on.
+class Vehicle (speed : Int){
+val mph :Int = speed
+    def race() = println("Racing")
+}
+The Vehicle class takes one argument, which is the speed of the vehicle. 
+This argument must be passed when creating an instance of class Vehicle, as follows: new Vehicle(100).
+The class contains one method, called race.
 
-We declare a nano method, which prints a message and returns the current time with nano-second resolution:
+Extending Class:
+--------------
+Extending from a base class in Scala is similar to extending in Java except for two restrictions: 
+	i) method overriding requires the 'override' keyword, and 
+	ii) only the primary constructor can pass parameters to the base constructor.
 
-Call by name :
+It is possible to override methods inherited from a super class in Scala as illustrated below:
 
-def nano() = {
-println("Gettingnano")
-System.nanoTime
+Overriding methods inherited from a super class:
+
+class Car (speed : Int) extends Vehicle(speed) {
+override val mph: Int= speed
+override  def race() = println("Racing Car")
 }
 
-Next, we declare the delayed method, which takes a call-by-name parameter by putting the => symbol between 
-the variable name and the type.
+The class Car extends Vehicle class using the keyword extends. 
+The field mph and the method race needs to be overridden using the keyword override.
 
-delayed prints a message demonstrating that the method has been entered. 
-Next, delayed method prints a message with t’s value. 
-Finally, delayed method returns t.
+We will see another class Bike that extends Vehicle.
 
-Call by name parameter (note that give space after : colon else throws error: ':' expected butidentifier found).
+Vehicle Hierarchy:
 
-def delayed(t: => Long) = {
-println("Indelayed method")
-println("Param:"+t) //print t
-t  // returning t
+class Vehicle (speed : Int){
+val mph :Int = speed
+    def race() = println("Racing")
 }
-Now here instead of t, we use nano() code block.
+class Car (speed : Int) extends Vehicle(speed) {
+override val mph: Int= speed
+override  def race() = println("Racing Car")
 
-delayed(nano())
+}
+class Bike(speed : Int) extends Vehicle(speed) {
+override val mph: Int = speed
+override  def race() = println("Racing Bike")
 
-scala> delayed(nano())
-Indelayed method
-Gettingnano
-Param:6928408020775
-Gettingnano
-res3: Long = 6928408392112
-
-so in the println("Param:"+t) , here we passed the code block nano(), is first evaluated, the last line in nano
-is returned. once all done , the last line in delayed is returned. 
-
-This indicates that delayed is entered before the call to nano and that nano is called twice. 
-
-Let’s compare this to call-by-reference:
-
-Call by reference:
-
-def notDelayed(t: Long) = {
-println("Innotdelayed method")
-println("Param:"+t)
-t
 }
 
-Let’s try calling notDelayed:
-scala> notDelayed(nano())
 
-Gettingnano
-Innotdelayed method
-Param:7298685505069
-res6: Long = 7298685505069
 
-nano is called before notDelayed is called because the parameter to notDelayed, nano, is 
-calculated before notDelayed is called. (i.e call by reference, value is only sent, and code is executed b4 call)
-This is the way Java programmers expect code to work.
+>scalac vehicle.scala
+	Now you can enter the REPL using the scala command and create the vehicle object as shown here:
+scala> val vehicle1 = new Car(200)
+	With this command, Scala creates the vehicle1 object as shown here:
+vehicle1: Car = Car@19a8942
+	Now you can use this vehicle1 object created by Scala to access the speed of the Car:
+scala> vehicle1.mph
+	Scala REPL emits the speed of the Car as shown here:
+res1: Int = 200
+	In the similar manner, you can execute the race method of vehicle1:
+scala>vehicle1.race()
+	Scala interpreter emits the output as shown here:
+Racing Car
+	Now you can create the Bike object and access its property and method:
+scala> val vehicle2 = new Bike(100)
+vehicle2: Bike = Bike@b7ad3
+scala>vehicle2.mph
+res4: Int = 100
+scala> vehicle2.race()
+Racing Bike
 ----------------------------------------------------------------------------------------------------------------
 
-Method Invocation
------------------
-Scala provides a number of  variations for invoking methods.
+++++++++++
+Traits:
++++++++++++
 
-Standard Java dot notation:
-instance.method()
+Suppose you want to add another class to your vehicle hierarchy. say Batmobile.
+Batmobile can race,glide and fly.
 
-if the Method that does not take any params, ending params are optional.
-instance.method(param)
+But you cannot add glide and fly methods to the Vehicle class because in a nonfictional world, 
+Car and Bike that extend Vehicle do not glide or fly.
 
-methods that take a single parameter can be invoked without dots or parentheses:
-instance.method param
+So, in this case if you want to add Batmobile to your vehicle hierarchy, you can use a trait.
 
-Because Scala allows method names to contain symbols such as +, -, *, and ?, 
-Scala’s dotless method notation creates a syntactically neutral way of invoking methods that are 
-hard-coded operators in Java.
-scala> 2.1.*(4.3)
-res5:Double = 9.03
-scala> 2.1* 4.3
-res6:Double = 9.03
+Traits are like interfaces in Java, which can also contain code.
 
-you invoke multiparameter methods in Scala just as in Java:
-instance.method(p1, p2)
+In Scala, when a class inherits from a trait, it implements the interface of the trait, 
+ and inherits all the code contained in the trait.
 
-If a Scala method takes a type parameter, typically, the type parameter will be inferred by the compiler, 
-but you can also explicitly pass the type parameter:
+Below code shows flying and gliding traits.
+flying and gliding traits:
 
-instance.method[TypeParam](p1,p2)
-------------------------------------------------------------------------------------------------------------------
-
-Objects:
----------
-In Scala, you can use objects to 
-	refer to an instance of a class in Java and 
-	you can also use "object" as a keyword
-
-Singleton Objects:
--------
-Instead of Static members, Scala has singleton objects.
-A singleton object definition looks like a class definition, 
-except instead of the keyword class you use the keyword object. 
-
-A singleton is a class that can have only one instance. 
-
-For instance, you might create a singleton object to represent a Car like so:
-object Car {
-def drive { println("drive car") }
-}
-Scala >defined module Car
-
-With Car defined as an object, there can be only one instance of it, 
-and you can call its methods just like static methods on a Java class:
-
-object Main extends App {
-Car.drive
+trait flying {
+    def fly() = println("flying")
 }
 
-++++
-Unlike classes, singleton objects cannot take parameter.
-++++
-You can use singleton objects for many purposes, 
-including collecting related utility methods, or 
-defining an entry point to a Scala application. 
-
-++++++
-There are two ways to create a launching point for your application: 
-+++++++
-	define an object with a properly defined main method or 
-	define an object or that extends the App trait. 
-
-First approach:
-object HelloWorld {
-def main(args: Array[String]) {
-println("Hello,World!")
-}
-}
-	
-For the second approach, define an object that extends the App trait as shown here:
-object Hello extends App {
-println("Hello, world")
+trait floating gliding {
+def gliding() = println("gliding")
 }
 
-Scala provides a trait, scala. Application that your singleton object should extend for launching the application.
+Now you can create the Batmobile class that extends Vehicle class along with the flying and gliding traits, 
+as shown below:
 
-Then you place the code you would have put in the main method directly in the singleton object. 
-Now you can compile and run this application. 
-Note that in both approaches, Scala applications are launched from an object, not a class.
-
------------
-Companion Objects :
-------------------
-	In Scala, both a class and an object can share the same name. 
-	When an object shares a name with a class, it’s called a companion object, 
-	and the class is called a companion class. 
-
-A companion object is an object that shares the same name and source file with another class or trait.
-A trait could be seen as a Java interface.
-Using this approach lets you create static members on a class.
-
-The companion object is useful for implementing helper methods and factory.
-
-We want to implement a factory that creates different types of shapes.
-If we want to implement this shape factory in Scala, we will need only one source file. 
-We use a companion class Shape and a companion object Shape, which acts as a factory.
-
-Companion object
-
-trait Shape {
-  def area :Double
-}
-
-object Shape {
-private class Circle(radius: Double) extends Shape{
-    override val area = 3.14*radius*radius
-  }
-
-private class Rectangle (height: Double, length: Double)extends Shape{
-    override val area = height * length
-  }
-
-  def apply(height :Double , length :Double ) : Shape = new Rectangle(height,length)
-  def apply(radius :Double) : Shape = new Circle(radius)
+Using "with"
+------------
+class Batmobile(speed : Int) extends Vehicle(speed)  with flying with gliding{
+override val mph: Int = speed
+override  def race() = println("Racing Batmobile")
+override def fly() = println("Flying Batmobile")
+override def float() = println("Gliding Batmobile")
 
 }
 
-scala> val circle = Shape(2)
-circle: Shape = Shape$Circle@1675800
-scala> circle.area
-res0: Double = 12.56
-scala> val rectangle = Shape(2,3)
-rectangle: Shape = Shape$Rectangle@1276fd9
-scala> rectangle.area
-res2: Double = 6.0
-
-A singleton object that does not share the same name with a companion class is called a standalone object.
------------------------------------------------------------------------------------------------------------
-
-Packaging and Imports :
----------------------
-
-A package is a named module of code.
-Java and Scala convention dictates that package names are the "reversed domain name" of the code owner.
-
-For example, the packages in the Lift Web Framework (http://liftweb.net) begin with net.liftweb. 
-Typically, the package also contains a descriptive name for the module. For example, 
-the Lift utility package is net.liftweb.util. 
-
-The package declaration is the first non-comment line in the source file:
-package com.liftcode.stuff
-
-Scala packages can be imported so that they can be referenced in the current compilation scope.
-The following statement imports the contents of the scala.xml package:
-import scala.xml._
-
-Import statements are made in the scope of prior imports. 
-The following statement imports the scala.xml.transform package:
-
-import transform._
-
-You can import a single class and object (more on objects later in chapter), 
-for example, HashMap from the scala.collection.mutable package:
-import scala.collection.mutable.HashMap
-
-You can import more than one class or object from a single package, 
-for example, TreeMap and TreeSet from the scala.collection.immutable package:
-import scala.collection.immutable.{TreeMap, TreeSet}
-
-Finally, you can import a class or object and rename it. 
-For example, you can import the JSON class/object from the scala.util.parsing.json package and 
-rename it to JsonParser:
-import scala.util.parsing.json.{JSON=> JsonParser}
-
-import can be used inside any codeblock, and the import will be active only in the scope of that code block.
-For example, you can import something inside a class body as shown below:
-
-Using import inside class body:
-
-classFrog {
-importscala.xml._
-defn:NodeSeq= NodeSeq.Empty
-}
+In Scala, traits can inherit classes. (i.e other way of classes implement trait)
+The keyword extends is also used when a class inherits a trait as its parent. 
 
 
-Scala’s import statement can also import the methods of an object so that those methods can be 
-used without explicit reference to the object that owns them.
+The keyword extends is also used even when the class mixes in other traits using the with keyword. 
+Also, extends is used when one trait is the child of another trait or class.
 
-This is much like Java’s static import. 
-Combining local scope import and importing objects allows you to fine-tune where the objects and 
-their associated methods are imported as shown in below:
+You can now create a Batmobile in the REPL as illustrated here:
+scala> val vehicle3 = new Batmobile(300)
+vehicle3: Batmobile = Batmobile@374ed5
+	Now you can access the fly method of the Batmobile shown here:
+scala> vehicle3.fly()
+Flying Batmobile
 
-Combining local scope import andimporting objects:
 
-scala> objectMoose{
-defbark = "woof"
-}
-defined module Moose
+Now create a list of vehicles, then you can use the maxBy method provided by Scala collections library to find 
+the fastest vehicle in the list.
 
-scala> import Moose._
-import Moose._
-
-scala> bark
-res78:java.lang.String = woof
+scala> val vehicleList = List(vehicle1, vehicle2, vehicle3)
+vehicleList: List[Vehicle] = List(Car@562791, Bike@e80317, Batmobile@374ed5)
+scala> val fastestVehicle = vehicleList.maxBy(_.mph)
+fastestVehicle: Vehicle = Batmobile@374ed5
 ---------------------------------------------------------------------------------------------------------------
+
+Case Classes:
+-------------
+Scala has a mechanism for creating classes that have the common stuff filled in. 
+Most of the time, when we define a class, we have to write the toString, hashCode, and equals methods. 
+These methods are boilerplate.
+Scala provides the case class mechanism for filling in these blanks, as well as support for pattern matching. 
+A case class provides the same facilities as a normal class, 
+but the compiler generates toString, hashCode, and equals methods (which you can override).
+
+Case classes can be instantiated without the use of the new statement. 
+By default, all the parameters in the case class’s constructor become properties on the case class.
+
+how to create a case class:
+case classStuff(name:String, age: Int)
+
+You can create an instance of Stuff without the keyword new (you can use new if you want):
+scala> vals = Stuff("David", 45)
+s: Stuff = Stuff(David,45)
+
+The case class’s to String method does the right thing:
+scala> s.toString
+res70:String = Stuff(David,45)
+
+Stuff’s equals method does a "deep comparison":
+scala> s == Stuff("David",45)
+res72:Boolean = true
+s == Stuff("David",43)
+res73:Boolean = false
+
+And the instance has properties:
+scala> s.name
+res74:String = David
+scala> s.age
+res75:Int = 45
+
+If you want to write your own class that does the same thing as a case class does, it would look like below:
+
+Implementing case features in a class on its own
+
+classStuff(val name: String,valage: Int) {
+overridedeftoString = "Stuff("+name+","+age+")"
+overridedefhashCode= name.hashCode+ age
+overridedefequals(other: AnyRef)= othermatch {
+case s: Stuff=> this.name== s.name &&this.age == s.age
+case _ => false
+}
+}
+
+objectStuff {
+defapply(name: String, age: Int) = newStuff(name,age)
+defunapply(s: Stuff)= Some((s.name, s.age))
+}
+Case classes also come in handy for pattern matching will be expored in later chapters(6th).
+-----------------------------------------------------------------------------------------------
+
+Value Classes:
