@@ -379,5 +379,319 @@ classThree extends One{
 overridelazy valthing= super.thing + (newjava.util.Date).toString
 }
 
-Chapter 3 - code blocks
-http://techbus.safaribooksonline.com/9781484202326/sec3_html_6#X2ludGVybmFsX0h0bWxWaWV3P3htbGlkPTk3ODE0ODQyMDIzMjYlMkZzZWMxMF9odG1sXzMmcXVlcnk9
+-------------------------------------------------------------------------
+Code blocks
+---------------------------------------------------------------------------
+Code Blocks:
+
+Method and varible definitios can be single lines:
+
+def meth9()="Hello World"
+
+Methods and variables ALSO can be defined in code blocks, denoted by curly braces {}
+Code blocks can be nested.
+
+Result of a code block is the last line evaluated in the code block as shown below.
+
+The result of a codeblock
+
+def meth3():String = {"Moof"}   - here Moof is the output scala> meth3()  res0: String = Moof
+def meth4():String = {
+val d = new java.util.Date()
+d.toString()
+}
+scala> meth4()  res1: String = Wed Mar 09 11:28:53 IST 2016
+
+
+Variable definitions can be code blocks as well - this is handy when defininng val variables. The logic required
+to compute the value is SIGNIFICANT (non-trivial)
+
+Variable definition code block
+
+val x3:String= {
+val d = new java.util.Date()
+d.toString()
+}
+
+------------------------------------------------------------------------------------------------------------------
+
+Call - by - Name :
+------------------
+In Java, all method invocations are call-by-reference(for obj) or call-by-value (for primitive types). 
+What this means is that the parameter’s value, or reference in the case of an AnyRef(java objects),
+is placed on the stack and passed to the callee.
+
+Scala gives you an additional mechanism for passing parameters to methods (and functions): call-by-name, 
+which passes a "code block" to the callee. 
+
++++++
+Each time the callee accesses the parameter, the code block is executed and the value is calculated. 
++++++
+Call-by-name allows you to pass parameters that might take a longtime to calculate but may not be used. 
+Call-by-name also allows you to create flow of control structures such as while, doWhile, and so on.
+
+We declare a nano method, which prints a message and returns the current time with nano-second resolution:
+
+Call by name :
+
+def nano() = {
+println("Gettingnano")
+System.nanoTime
+}
+
+Next, we declare the delayed method, which takes a call-by-name parameter by putting the => symbol between 
+the variable name and the type.
+
+delayed prints a message demonstrating that the method has been entered. 
+Next, delayed method prints a message with t’s value. 
+Finally, delayed method returns t.
+
+Call by name parameter (note that give space after : colon else throws error: ':' expected butidentifier found).
+
+def delayed(t: => Long) = {
+println("Indelayed method")
+println("Param:"+t) //print t
+t  // returning t
+}
+Now here instead of t, we use nano() code block.
+
+delayed(nano())
+
+scala> delayed(nano())
+Indelayed method
+Gettingnano
+Param:6928408020775
+Gettingnano
+res3: Long = 6928408392112
+
+so in the println("Param:"+t) , here we passed the code block nano(), is first evaluated, the last line in nano
+is returned. once all done , the last line in delayed is returned. 
+
+This indicates that delayed is entered before the call to nano and that nano is called twice. 
+
+Let’s compare this to call-by-reference:
+
+Call by reference:
+
+def notDelayed(t: Long) = {
+println("Innotdelayed method")
+println("Param:"+t)
+t
+}
+
+Let’s try calling notDelayed:
+scala> notDelayed(nano())
+
+Gettingnano
+Innotdelayed method
+Param:7298685505069
+res6: Long = 7298685505069
+
+nano is called before notDelayed is called because the parameter to notDelayed, nano, is 
+calculated before notDelayed is called. (i.e call by reference, value is only sent, and code is executed b4 call)
+This is the way Java programmers expect code to work.
+----------------------------------------------------------------------------------------------------------------
+
+Method Invocation
+-----------------
+Scala provides a number of  variations for invoking methods.
+
+Standard Java dot notation:
+instance.method()
+
+if the Method that does not take any params, ending params are optional.
+instance.method(param)
+
+methods that take a single parameter can be invoked without dots or parentheses:
+instance.method param
+
+Because Scala allows method names to contain symbols such as +, -, *, and ?, 
+Scala’s dotless method notation creates a syntactically neutral way of invoking methods that are 
+hard-coded operators in Java.
+scala> 2.1.*(4.3)
+res5:Double = 9.03
+scala> 2.1* 4.3
+res6:Double = 9.03
+
+you invoke multiparameter methods in Scala just as in Java:
+instance.method(p1, p2)
+
+If a Scala method takes a type parameter, typically, the type parameter will be inferred by the compiler, 
+but you can also explicitly pass the type parameter:
+
+instance.method[TypeParam](p1,p2)
+------------------------------------------------------------------------------------------------------------------
+
+Objects:
+---------
+In Scala, you can use objects to 
+	refer to an instance of a class in Java and 
+	you can also use "object" as a keyword
+
+Singleton Objects:
+-------
+Instead of Static members, Scala has singleton objects.
+A singleton object definition looks like a class definition, 
+except instead of the keyword class you use the keyword object. 
+
+A singleton is a class that can have only one instance. 
+
+For instance, you might create a singleton object to represent a Car like so:
+object Car {
+def drive { println("drive car") }
+}
+Scala >defined module Car
+
+With Car defined as an object, there can be only one instance of it, 
+and you can call its methods just like static methods on a Java class:
+
+object Main extends App {
+Car.drive
+}
+
+++++
+Unlike classes, singleton objects cannot take parameter.
+++++
+You can use singleton objects for many purposes, 
+including collecting related utility methods, or 
+defining an entry point to a Scala application. 
+
+++++++
+There are two ways to create a launching point for your application: 
++++++++
+	define an object with a properly defined main method or 
+	define an object or that extends the App trait. 
+
+First approach:
+object HelloWorld {
+def main(args: Array[String]) {
+println("Hello,World!")
+}
+}
+	
+For the second approach, define an object that extends the App trait as shown here:
+object Hello extends App {
+println("Hello, world")
+}
+
+Scala provides a trait, scala. Application that your singleton object should extend for launching the application.
+
+Then you place the code you would have put in the main method directly in the singleton object. 
+Now you can compile and run this application. 
+Note that in both approaches, Scala applications are launched from an object, not a class.
+
+-----------
+Companion Objects :
+------------------
+	In Scala, both a class and an object can share the same name. 
+	When an object shares a name with a class, it’s called a companion object, 
+	and the class is called a companion class. 
+
+A companion object is an object that shares the same name and source file with another class or trait.
+A trait could be seen as a Java interface.
+Using this approach lets you create static members on a class.
+
+The companion object is useful for implementing helper methods and factory.
+
+We want to implement a factory that creates different types of shapes.
+If we want to implement this shape factory in Scala, we will need only one source file. 
+We use a companion class Shape and a companion object Shape, which acts as a factory.
+
+Companion object
+
+trait Shape {
+  def area :Double
+}
+
+object Shape {
+private class Circle(radius: Double) extends Shape{
+    override val area = 3.14*radius*radius
+  }
+
+private class Rectangle (height: Double, length: Double)extends Shape{
+    override val area = height * length
+  }
+
+  def apply(height :Double , length :Double ) : Shape = new Rectangle(height,length)
+  def apply(radius :Double) : Shape = new Circle(radius)
+
+}
+
+scala> val circle = Shape(2)
+circle: Shape = Shape$Circle@1675800
+scala> circle.area
+res0: Double = 12.56
+scala> val rectangle = Shape(2,3)
+rectangle: Shape = Shape$Rectangle@1276fd9
+scala> rectangle.area
+res2: Double = 6.0
+
+A singleton object that does not share the same name with a companion class is called a standalone object.
+-----------------------------------------------------------------------------------------------------------
+
+Packaging and Imports :
+---------------------
+
+A package is a named module of code.
+Java and Scala convention dictates that package names are the "reversed domain name" of the code owner.
+
+For example, the packages in the Lift Web Framework (http://liftweb.net) begin with net.liftweb. 
+Typically, the package also contains a descriptive name for the module. For example, 
+the Lift utility package is net.liftweb.util. 
+
+The package declaration is the first non-comment line in the source file:
+package com.liftcode.stuff
+
+Scala packages can be imported so that they can be referenced in the current compilation scope.
+The following statement imports the contents of the scala.xml package:
+import scala.xml._
+
+Import statements are made in the scope of prior imports. 
+The following statement imports the scala.xml.transform package:
+
+import transform._
+
+You can import a single class and object (more on objects later in chapter), 
+for example, HashMap from the scala.collection.mutable package:
+import scala.collection.mutable.HashMap
+
+You can import more than one class or object from a single package, 
+for example, TreeMap and TreeSet from the scala.collection.immutable package:
+import scala.collection.immutable.{TreeMap, TreeSet}
+
+Finally, you can import a class or object and rename it. 
+For example, you can import the JSON class/object from the scala.util.parsing.json package and 
+rename it to JsonParser:
+import scala.util.parsing.json.{JSON=> JsonParser}
+
+import can be used inside any codeblock, and the import will be active only in the scope of that code block.
+For example, you can import something inside a class body as shown below:
+
+Using import inside class body:
+
+classFrog {
+importscala.xml._
+defn:NodeSeq= NodeSeq.Empty
+}
+
+
+Scala’s import statement can also import the methods of an object so that those methods can be 
+used without explicit reference to the object that owns them.
+
+This is much like Java’s static import. 
+Combining local scope import and importing objects allows you to fine-tune where the objects and 
+their associated methods are imported as shown in below:
+
+Combining local scope import andimporting objects:
+
+scala> objectMoose{
+defbark = "woof"
+}
+defined module Moose
+
+scala> import Moose._
+import Moose._
+
+scala> bark
+res78:java.lang.String = woof
+---------------------------------------------------------------------------------------------------------------
