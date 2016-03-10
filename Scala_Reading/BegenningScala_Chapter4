@@ -172,8 +172,12 @@ abstract def apply( v1 :T1, v2 :T2 ) : R
 }
 
 
-This shows only the apply method. The two type parameters T1, T2 in the apply method take the type of the arguments, while type parameter R represents the function's return type.
-For every function that you define in Scala, the compiler comes up with an instance of the appropriate Function Trait, where the type parameters are parameterized with the given types of the arguments and the return type of the function.
+This shows only the apply method. 
+The two type parameters T1, T2 in the apply method take the type of the arguments, 
+while type parameter R represents the function's return type.
+For every function that you define in Scala, the compiler comes up with an instance of 
+the appropriate Function Trait, where the type parameters are parameterized with the given types of 
+the arguments and the return type of the function.
 In the areaOfRectangle function we defined earlier, the type of areaOfRectangle function is
 (Int, Int)  =>Int
 This is same as illustrated here:
@@ -188,7 +192,8 @@ areaOfRectangle.apply(5,3)
 You can test this on REPL as illustrated here:
 scala> val area = areaOfRectangle.apply(5,3)
 area: Int = 15
-You could go a step further and define a function by implementing an appropriate Function Trait and define its required apply method. Let’s do this for the areaOfRectangle function:
+You could go a step further and define a function by implementing an appropriate Function Trait and 
+define its required apply method. Let’s do this for the areaOfRectangle function:
 val areaOfRectangle :(Int, Int) => Int = new Function2[Int, Int, Int]{
         def apply(width:Int, height:Int):Int = {
                 width*height
@@ -197,6 +202,292 @@ val areaOfRectangle :(Int, Int) => Int = new Function2[Int, Int, Int]{
 You can test this on REPL as seen here:
 scala> areaOfRectangle(5,3)
 res18: Int = 15
-Now that you have learned function values and function types, you will see how you can use a function literal to pass it into a method that takes a function, or to assign it to a variable. Now we will discuss these in detail in the following section.
+Now that you have learned function values and function types, you will see how you can use a function 
+literal to pass it into a method that takes a function, or to assign it to a variable. 
+Now we will discuss these in detail in the following section.
 ----------------------------------------------------------------------
+
+
+First Class Function and Higher Order Function:
+--------------------------------------------------------------------------------------
+
+One of the key factors in Scala that beautifully blends functional paradigm into object-oriented paradigm is that 
+"functions are objects".
+
+In functional programming, functions are first-class citizens. 
+A first-class function is a function that can be
+i)Assigned to variables,
+ii)Passed as an argument to the other function, and
+iii)Returned as values from the other function.
+
+The other function emphasized in point 2 that takes a function as an argument and 
+	the other function emphasized in point 3 that returns a function, 
+	are called higher-order functions.
+In the sections that follow, you will learn about all three aspects of a first class function.
+
++++
+Note
+++++
+ Note  In functional programming, functions are first-class citizens, 
+	meaning functions can be assigned to variables, 
+		functions can be passed to other functions, 
+		and functions can be returned as values from other functions. 
+And such functions, which take functions as arguments or return a function, 
+are called higher-order functions.
++++
+
+Function as Variable:
+-------------
+Just as you pass String, Int, and other variables around in an OOP, you can pass a function around like a variable.
+You can define a function literal, and then assign that literal to a variable. 
+The following code defines a function literal that takes an Int parameter and returns a value that is twice the amount of the Int that is passed in:
+
+(i: Int) => { i * 2 }
+
+You can now assign that function literal to a variable:
+val doubler = (i: Int) => { i * 2 }
+
+scala> val doubler = (i: Int) => { i * 2 }
+doubler: Int => Int = <function1>
+
+The variable doubler is an instance of a function, known as a function value. You can now invoke doubler as illustrated here:
+doubler(2)
+scala> doubler(2)
+res25: Int = 4
+
+Under the hood, doubler is an instance of the Function1 trait, 
+which defines a function that takes one argument. 
+
+In terms of implementation, doubler is a function created using the keyword val and assigned to a variable.
+
+To define the doubler as a method instead of as a function you have to define the doubler method in a class,
+and use the keyword def to define a method.
+Beyond just invoking doubler, you can also pass it to any function (or method) that takes a function parameter. 
+
+We will discuss this in the following section.
+
+Function as Parameter:
+------------------------
+You can create a function or a method that takes a function as a parameter. 
+For this, first define a method that takes a function as a parameter.
+
+def operation(functionparam:(Int, Int) => Int) {
+println(functionparam(4,4))
+}
+
+scala> def operation(functionparam:(Int, Int) => Int) {
+     | println(functionparam(4,4))
+     | }
+operation: (functionparam: (Int, Int) => Int)Unit
+
+The operation method takes one parameter named functionparam, which is a function. 
+The functionparam function takes two Int and returns an Int. 
+The operation method returns a Unit that indicates that operation method returns nothing.
+
+Next, define a function that matches the expected signature. 
+The following add function matches that signature, 
+because it takes two Int arguments and returns an Int:
+
+val add = (x: Int, y:Int) => { x + y }
+
+Now you can pass an add function into the operation method:
+operation(add)
+scala> operation(add)
+8
+
+Any function that matches this signature can be passed into the operation method. Let’s define two new functions named subtract and multiply that take two Int and return an Int:
+val subtract = (x: Int, y:Int) => { x - y }
+val multiply = (x: Int, y:Int) => { x*y }
+Now you can pass these functions into your operation method:
+operation(subtract)
+scala> operation(subtract)
+0
+operation(multiply)
+scala> operation(multiply)
+16
+
+
+Returning a Function
+You can return a function from a function or method. In order to do this, first define an anonymous function.
+The following code declares an anonymous function that takes a String argument and returns a String:
+(name: String) => { "hello" + " " + name }
+Now we will define a method that returns the anonymous function that we just defined.
+def greeting() = (name: String) => {"hello" + " " + name}
+On the left side of the = symbol you have a normal method declaration:
+def greeting()
+On the right side of the = is a function literal (an anonymous function):
+(name: String) => {"hello" + " " + name}
+
+scala> def greeting() = (name: String) => {"hello" + " " + name}
+greeting: ()String => String
+Now you can assign greeting() to a variable:
+val greet= greeting()
+scala>  val greet= greeting()
+greet: String => String = <function1>
+The greet function is now equivalent to your anonymous function (name: String) => {"hello" + " " + name}.
+Because the anonymous function takes a String parameter name, you can pass it a name:
+greet("Reader")
+scala> greet("Reader")
+res26: String = hello Reader
+
+--------------------------------------------------------------------------------------------------------------
+Closure:
+--------
+A closure is a function, whose return value depends on the value of one or more variables declared outside this function. Consider the following multiplier function:
+val multiplier = (x:Int) => x * 3
+In the multiplier function, i is the variable used in the function body. x is defined as a parameter to the function. Now let’s modify the multiplier function as illustrated here:
+val multiplier = (x:Int) => x * y
+Because is a formal parameter to the function, it is bound to a new value each time multiplier is called. However, j is not a formal parameter. Let’s further modify the multiplier function as illustrated:
+var y = 3
+val multiplier = (x:Int) => x * y
+Now, y has a reference to a variable outside the function but in the enclosing scope.
+
+scala> var y = 3
+y: Int = 3
+scala> val multiplier = (x:Int) => x * y
+multiplier: Int => Int = <function1>
+Now you can invoke the multiplier function as illustrated here:
+multiplier(3)
+scala> multiplier(3)
+res37: Int = 9
+The multiplier function references j and reads its current value each time. The Scala compiler creates a closure (closes over) that encompasses the variable in the enclosing scope.
+
+-------------------------------------------------------------------------------------------
+Partially Applied Function:
+------------------------------
+
+In functional programming languages, when you call a function that has parameters, you are said to be applying the function to the parameters. When all the parameters are passed to the function you have fully applied the function to all the parameters.
+A simple add function:
+val add = (x: Int, y: Int) => x + y
+scala> val add = (x: Int, y: Int) => x + y
+add: (Int, Int) => Int = <function2>
+<function2> indicates it is a function of two parameters.
+scala> add(1,2)
+res01: Int = 3
+But when you give only a subset of the parameters to the function, the result of the expression is a partially applied function.
+val partiallyAdd = add(1, _:Int)
+Because you haven’t provided a value for the second parameter, the variable partiallyAdd is a partially applied function. You can see this in the REPL:
+scala> val partiallyAdd = add(1, _:Int)
+partiallyAdd: Int => Int = <function1>
+The output in the REPL shows that partiallyAdd is a function that implements the Function1 trait. Implemeting a Function1 trait indicates that partiallyAdd function takes one argument. When you give partiallyAdd an Int value 2, you get the sum of the Int number passed into the add and partiallyAdd functions:
+scala> partiallyAdd(2)
+res02: Int = 3
+The first argument 1 was passed into the original add function and the new function named partiallyAdd was created, which is a partially applied function; then, the second argument 2 was passed into partiallyAdd. When you provide all the parameters, the original function is executed, yielding the result.
+
+------------------------------------------------------------------------------------
+Curried Function:
+--------------------
+Currying converts a function with multiple parameters creating a chain of function, each expecting a single parameter.
+Let’s look at a simple add function that adds two Int parameters, a and b, as illustrated here:
+val add = (x: Int, y: Int) => x + y
+scala> val add = (x: Int, y: Int) => x + y
+add: (Int, Int) => Int = <function2>
+scala> add(3,3)
+res38: Int = 6
+In Scala, curried functions are defined with multiple parameter lists, as follows:
+def add(x: Int)(y: Int) = x + y
+You can also use the following syntax to define a curried function:
+def add(x: Int) = (y: Int) => x + y
+As you can see, instead of one list of two Int parameters, you apply the curried add function to two lists of one Int parameter. Thus the curried add function looks like this:
+scala> def curriedAdd(a: Int)(b: Int) = a + b
+curriedAdd: (a: Int)(b: Int)Int
+scala> curriedAdd(2)(2)
+res1: Int = 4
+You could define more than two parameters on a curried function. Our add function that takes two arguments, is transformed into its curried equivalent.
+--------------------------------------------------------------------------------------
+Function Composition
+In functional programming, you can compose functions from other functions. For example, tan(x) = sin(x)/cos(x). An implication of composability is that functions can be treated as values. So far, we’ve created simple functions and manipulated the function instances. However, we can also build functions from other functions. Functional composition provides the basis for a lot of cool things in Scala, including the parser combinator, which we will explore in Chapter 8. But for now, let’s see the difference between interpreting a series of commands and “compiling” a function that interprets them. First, let’s define a grammar. In our grammar, we have expressions, which can be constant values or named variables. Expressions can also be addition or multiplication of other expressions. Here’s a collection of case classes that describes our grammar (recall that we covered case classes in Chapter 2):
+sealed trait Expr
+case class Add(left: Expr, right: Expr) extends Expr
+case class Mul(left: Expr, right: Expr) extends Expr
+case class Val(value: Int) extends Expr
+case class Var(name: String) extends Expr
+We can build expressions like 1 + 1, Add(Val(1), Val(1)), 3 * (1 + 1), Mul(Val(3),
+Add(Val(1), Val(1)), and a * 11, Mul(Var("a"), Val(11)).
+We can evaluate an expression by interpreting the expression:
+def calc(expr: Expr, vars: Map[String, Int]): Int = expr match {
+case Add(left, right) => calc(left, vars) + calc(right, vars)
+case Mul(left, right) => calc(left, vars) * calc(right, vars)
+case Val(v) => v
+case Var(name) => vars(name)
+}
+Let’s look at how this method works. expr is the expression to evaluate, and vars is a Map that contains our variables. We use pattern matching to determine what to do based on the case class. If expr is an Add, we extract the left and right parameters, which are themselves Exprs. We call calc to calculate the value of the left and right parameters and add the results. If expr is Mul, we do the same thing (except we multiply things rather than adding them). If expr is Val, we simply extract the value and return it. If expr is Var, we extract the name and return the lookup of the name in the vars Map. We can turn this from a method call into a function. Having a function allows us to pass around the logic that the expression represents. It also means that we don’t have to interpret the tree of Exprs each time. Let’s see how we can compose a function based on the Expr.
+def buildCalc(expr: Expr): Map[String, Int] => Int = expr match {
+case Add(left, right) =>
+val lf = buildCalc(left)
+val rf = buildCalc(right)
+m => lf(m) + rf(m)
+case Mul(left, right) =>
+val lf = buildCalc(left)
+val rf = buildCalc(right)
+m => lf(m) * rf(m)
+case Val(v) => m => v
+case Var(name) => m => m(name)
+}
+The buildCalc method returns a function that can be passed to other functions. Also, the JVM can optimize the composed functions so that they perform better than the interpreted version. The performance of the composed function is better because there is no overhead associated with pattern matching each element. The function is evaluated by repeatedly calling the function’s apply method. Thus, the cost of each node is one or two method dispatches rather than the cost of the pattern matching. Let’s turn to other ways that functions can help us improve performance and readability.
+-----------------------------------------------------------------------------------
+Tail Calls and Tail Call Optimization:
+---------------------------------
+A recursive function is one that may invoke itself. Recursion plays a crucial role in functional programming because it offers a way to iterate over data structures using mutable data, since each function call has its own stack for storing function parameters. One classic example of a recursion can be seen in the implementation of factorial as shown:
+scala> def factorial(number:Int) : Int = {
+     |     if (number == 1)
+     |        return 1
+     |     number * factorial (number - 1)
+     | }
+factorial: (number: Int)Int
+You can call this function as shown here:
+scala> println(factorial(3))
+6
+One problem associated with using recursive functions is that invoking a recursive function too many times leads to stack-overflow error. The Scala compiler can optimize recursive functions with tail recursion so that recursive calls do not use all the stack space, therefore not running into stack-overflow error. The tail-recursion is a specific kind of recursion that occurs when a function calls itself as its final operation. With tail-recursion-optimized functions, recursive invocation doesn’t create a new stack but instead uses the current function’s stack. Only functions whose last statement is the recursive invocation can be optimized for tail-recursion by the Scala compiler.
+Next is the implementation of factorial, calculated with tail-call recursion. To facilitate tail-call optimization, Scala provides an annotation available to mark a function to be optimized for tail-recursion. A function marked with the tail-recursion function annotation causes an error at compilation time if it cannot be optimized for tail-recursion. To mark a function to be optimized for tail-recursion, add @annotation.tailrec before the function definition.
+Now mark the factorial function shown earlier with @annotation.tailrec to instruct the Scala compiler that this function must be optimized for tail-recursion and that if annotated function cannot be optimized for tail-recursion, the compiler should treat it as an error.
+scala> @annotation.tailrec
+     | def factorial(number:Int) : Int = {
+     |     if (number == 1)
+     |        return 1
+     |     number * factorial (number - 1)
+     | }
+<console>:12: error: could not optimize @tailrec annotated method factorial: it contains a recursive call not in tail positionnumber * factorial (number - 1)^
+As you can see, Scala compiler throws an error. The factorial method can’t be optimized because the recursive call is not the last statement in the function; the factorial calls itself and then performs multiplication with the result, so actually multiplication is the last statement in the function, not the recursive call. A function can’t be optimized for tail-recursion if the result of invoking itself is used for anything but the direct return value
+The factorial method marked with @annotation.tailrec will not compile successfully until recursion is the final operation. So we need to perform the multiplication operation before invoking the factorial method for which we use accumulator argument to hold the computation in progress. This argument is computed with a multiplication before the recursive call. Thus recursion is a final operation.
+scala> @annotation.tailrec
+     | def factorial(accumulator: Int, number: Int) : Int = {
+     |   if(number == 1)
+     |     return accumulator
+     |   factorial(number * accumulator, number - 1)
+     | }
+factorial: (accumulator: Int, number: Int)Int
+A successful compile guarantees that the function will be optimized with tail recursion, so that each successive call will not add new stack frames.
+scala> println(factorial(1,3))
+6
+-------------------------------------------------------------------------------------------------------
+Call-by-Name, Call-by-Value, and General Laziness
+In Java programs, when you call a method with parameters, the value of the parameters are all calculated before the method is called. Thus, in
+foo(1 + 1, "A String".length());
+The expressions 1 + 1 and "A String".length() are both evaluated before the call to foo is made. This is usually what you want. However, there are some cases when you want to parameters to be optionally evaluated or repeatedly evaluated. In these cases, Scala provides the call-by-name mechanism. There’s no syntactic difference to the caller for call-by-name parameters.
+The first example for call-by-name is the logging example. It’s computationally costly to calculate log messages simply to discard them if the message is not going to be logged. This is very common in Java code:
+if (logger.level().intValue() >= INFO.intValue()) {
+logger.log(INFO, "The value is "+value);
+}
+In this code, we have to push the decision to evaluate logger.log(INFO, "The value is "+value);into the place where we call logger. This means we need to wrap the call to logger in an if statement. It would be much better from a coding perspective if the cost of evaluating the String to be logged were incurred only if the String is going to be logged and if the current log level is known to and tested by the code inside logger rather than in the call to logger. Call-by-name gives us the ability to delay the evaluation of the String to log only if that String will actually be logged.
+In Scala, we can define a log method that takes the thing to log as call-by-name:
+def log(level: Level, msg: => String) =
+if (logger.level.intValue >= level.intValue) logger.log(level, msg)
+And you would call this code:
+log(INFO, "The value is "+value)
+The Scala version passes "The value is "+value as a function that is evaluated each time it is accessed in the log method. The log method will access it only if the log message is going to be printed. Your code is cleaner because you don’t have to repeatedly test the log level, but it performs as well as the previous Java code that has the inline test. In order to make something call-by-name, just put  => before the type. So, foo(s: String) is call-by-reference, and foo(s: => String) is call-by-name.
+You may be wondering how the code could possibly perform as well if a function object is being created and handed off to the log method. In the JVM, the cost of creating an object that never escapes the current thread and is very short-lived is zero or very near zero. The JVM may also inline the log method such that the test is performed without an actual method call. The result is that your code will run as quickly with the Scala code as it will with the Java code that has the repeated test for log level. The first use of call-by-name is passing an expression that takes a long time to evaluate that may not be evaluated. The second use for call-by-name is the situation where we want to evaluate the expression many times in the target method, for example, if we want to evaluate an expression until some condition is met. That condition could be until the expression returns false or until the expression returns null. For example, we could collect all the Strings returned from an expression until we encounter a null:
+def allStrings(expr: => String): List[String] = expr match {
+case null => Nil
+case s => s :: allStrings(expr)
+}
+We can test this method:
+scala> import java.io._
+import java.io._
+scala> val br = new BufferedReader(new FileReader("foo.txt"))
+br: java.io.BufferedReader = jaferedReva.io.Bufader@2bfa91
+scala> allStrings(br.readLine)
+res0: List[String] = List(import scala.xml._, , object Morg {,...)
+Each time the call-by-name parameter, expr, is accessed, it is applied. If it is passed as a parameter that is also call-by-name, it will be passed without evaluation. In the previous code, you pattern match against the application of expr. If it’s null, return an empty List, a Nil. If it’s not null, return a List that is the current String and the result of allStrings(expr).
+-------------------------------------------------------------------------------------------------
 
