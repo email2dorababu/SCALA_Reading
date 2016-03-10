@@ -1,2 +1,202 @@
-Date 10 Mar 2016
+Functional Programming in Scala:
+-----------------------------------------------------------------------------------------
+Expression-Oriented Programming:
+--------------------------------
+In expression-oriented programming every statement is an expression. 
+
+To understand EOP, you have to understand the difference between a statement and an expression. 
+	
+	A statement executes code, but does not return any value, for example:
+	customer.computeDiscount()
+	
+	An expression returns value. Expressions are blocks of code that evaluate to a value as seen here:
+	val discount = computeDiscount(customer)
+	
++++++++++
+Note : 
+	An expression-oriented programming language is a programming language where every construct is 
+	an expression, and thus evaluates to a value.
+++++++	
+In Scala, the following expression returns a result:
+scala> 2 + 2
+res0: Int = 4
+
+The strength of expression-oriented programming is more discernible from an if/else expression, which also returns a value in Scala:
+val test = if (3 > 2) "true" else "false"
+
+To accomplish the same effect shown in the Scala if clause, you have to use the ?: syntax in Java.
+boolean test = 3 > 2 ? true : false ;
+
+Scala has no ?: syntax, since it can achieve this with if/else.
+
++++++++++
+Note: As mentioned earlier, every construct in Scala is an expression 
+	where the order in which operations occur is of no importance 
+	and therefore these expressions can be executed in any order. 
+	
+	This simple concept has a deep implication in concurrency in multicore programming 
+	where you can execute expressions in parallel. We explore concurrency in Chapter 10.
++++++++++
+------------------------------------------------------------------------------------------
+A Pure Function:
+----------------
+In mathematics, functions are nothing short of pure, 
+in that they lack side effects. Consider the classic functions in(x):
+y = sin(x).
+Regardless of how many times sin(x) gets called, sin(x) does not modify the state. 
+Such a function is called a pure function and is oblivious(memoryless) to the context. 
+This obliviousness(lack of memory) to the surrounding context is known as "referential transparency".
+
+Referential Transparency:
+--------------------------
+An expression is referentially transparent if 
+	it can be substituted by its resulting value, 
+	without changing the behavior of the program, 
+	regardless of where the expression is used in the program.
+
+For instance, you can assign the expression of two immutable variables x and y to a third variable z, 
+
+like this: val z = x + y
+Now, anywhere the expression x + y is used throughout the given scope of your program,
+you can substitute it by z within that scope, without affecting the result of the program.
+
+As stated before, functional programming gives you the right foundation to think about concurrency. 
+The three keystones of this foundation are: 
+	referential transparency, 
+	higher-order function, and 
+	immutable value.
+
+Understanding these key elements is crucial to understanding functional programming. 
+
+In functional programming, 
+	a pure function with one or more input parameters, 
+	does not mutate the input parameters and always returns the same value for the same input.
++++++
+Note  A pure function is referentially transparent and has no side effects.
++++++
+
+A pure function is free of side-effects, 
+however, a function that never cause side effects would be useless.
+ 
+A language that does not sanction side effects would be useless, 
+as input and output is essentially the ramification(complex consequence) of side effects.
+
+We have introduced sufficient theory for you to begin to explore Scala functions. 
+In Chapter 2, you learned the basic syntax of Scala functions and 
+how you can declare, define, and call functions. 
+
+Before continuing with the sections that follow in this chapter, we recommend you skim through the 
+Scala functions introduced in Chapter 2.
+Now we will get started with a basic functional construct in Scala—"the function literal".
+-------------------------------------------------
+Function Literal/Anonymous Function:
+---------------------------------
+A literal is the simplest form of expression. 
+A literal is a notation for representing a fixed value in source code. 
+
+Literals are often used to initialize variables. In the following, 1 is an integer literal:
+ int x = 1;
+ 
+Scala, allows you to express functions as literals.
+Function literals allow you to have an expression of a function type that you can write in a 
+short format without declaring a name for it.
+
+A function type could be one of the following:
+The type of a variable or parameter to which a function can be assigned
+An argument of a higher-order function taking a function parameter
+The result type of higher-order function returning a function
+
+The syntax for a function literal starts with a parenthesized comma-separated list of arguments 
+followed by an arrow and the body of the function. 
+
+A function literal is also called an anonymous function, that is, 
+	a function without any name specified with function literal syntax. Consider an add function:
+	val add = (x: Int, y: Int) => x + y
+	
+	Using the function literal you can define the add function as illustrated here:
+(x: Int, y: Int) => x + y.
+
+A function literal is instantiated into objects called function values. 
+A function value is a function object and you can invoke the function object in the same manner 
+as you invoke any other function. 
+
+The function object extends one of the FunctionN traits, 
+	such as Function0, Function1, and so on up to Function22.
+
+	Depending on the number of arguments in the function, the corresponding FunctionN trait is chosen by 
+	the compiler. 
+	For a function with two arguments, the compiler elects Function2 as the underlying type. 
+	For a function with 3 arguments compiler chooses  Function3 , for a function with 4 arguments,  
+	Function4  and so on.
+	
+Because the function value is an object, it could be stored in a variable and it could be 
+invoked using the parentheses function-call as illustrated here:
+scala> val add = (a: Int, b: Int) => a + b
+add: (Int, Int) => Int = <function2>
+scala>add(1, 2)
+res23: Int = 3
+
+The invocation of this function is converted to a call to the apply method of the function class instance, 
+which is assigned to the variable.
+
+From these kind of function literals the Scala compiler generates a function object 
+that mixes in one of the FunctionN traits—the left side of the ? becomes the parameter list and 
+the right side becomes the implementation of the apply method.
+
+Every function that you define in Scala becomes an instance of an implementation that 
+features a certain FunctionN Trait ranging from Function1 up to Function22.
+Now, to take a deeper look into Function traits we first write a function that calculates 
+the area of a rectangle as illustrated here:
+
+val areaOfRectangle:(Int, Int) => Int = (width:Int, height:Int) => {
+width*height
+}
+
+When you run this function in REPL you will see that compiler elects and chooses the Function2 Trait 
+for this function. 
+
+Why? Simply because there are two arguments to this function.
+scala> val areaOfRectangle:(Int, Int) => Int = (width:Int, height:Int) => {
+     |  width*height
+     | }
+areaOfRectangle: (Int, Int) => Int = <function2>
+
+You can invoke this function as seen here:
+scala> areaOfRectangle(5,3)
+res01: Int = 15
+Now, let’s take a look at Trait scala.Function2 in the Scala package:
+trait Function2[-T1, -T2, +R] extends AnyRef {
+    ...
+abstract def apply( v1 :T1, v2 :T2 ) : R
+    ...
+}
+
+
+This shows only the apply method. The two type parameters T1, T2 in the apply method take the type of the arguments, while type parameter R represents the function's return type.
+For every function that you define in Scala, the compiler comes up with an instance of the appropriate Function Trait, where the type parameters are parameterized with the given types of the arguments and the return type of the function.
+In the areaOfRectangle function we defined earlier, the type of areaOfRectangle function is
+(Int, Int)  =>Int
+This is same as illustrated here:
+Function2[Int,Int,Int]
+So we could have also defined our add function this way:
+val areaOfRectangle:  Function2[Int,Int,Int]  = (width:Int, height:Int) => { width*height }
+You can test this on REPL as seen here:
+scala> val areaOfRectangle:  Function2[Int,Int,Int]  = (width:Int, height:Int) => { width*height }
+areaOfRectangle: (Int, Int) => Int = <function2>
+Now, you could explicitly call the method apply on a given function as illustrated:
+areaOfRectangle.apply(5,3)
+You can test this on REPL as illustrated here:
+scala> val area = areaOfRectangle.apply(5,3)
+area: Int = 15
+You could go a step further and define a function by implementing an appropriate Function Trait and define its required apply method. Let’s do this for the areaOfRectangle function:
+val areaOfRectangle :(Int, Int) => Int = new Function2[Int, Int, Int]{
+        def apply(width:Int, height:Int):Int = {
+                width*height
+        }
+}
+You can test this on REPL as seen here:
+scala> areaOfRectangle(5,3)
+res18: Int = 15
+Now that you have learned function values and function types, you will see how you can use a function literal to pass it into a method that takes a function, or to assign it to a variable. Now we will discuss these in detail in the following section.
+----------------------------------------------------------------------
 

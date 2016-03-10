@@ -1,9 +1,9 @@
 Date: 4Mar2016
 Scala is a functional language. 
 Means, 
-you can pass functions to methods and functions, and 
-return functions from methods and functions.
-You can assign functions to variables.
+	you can pass functions to methods and functions, and 
+	return functions from methods and functions.
+	You can assign functions to variables.
 
 A Function is a block of code that takes parameters and returns a value. 
 Functions too must be objects in Scala, because everything is an object in Scala.
