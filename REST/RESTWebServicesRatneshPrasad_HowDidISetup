@@ -1,0 +1,21 @@
+23/mar/2016
+
+Step 1: setup Tomcat in eclipse. 
+downloaded tomcat and in eclipse created server.
+Window->show view-> servers
+double click on the tomcat in the servers and selected use the tomcat installation.
+
+Step 2. downloaded jersy 1.19 from jersy.java.net
+step 3> create dynamic webproject, and selected generate web.xml option.
+
+step 4. copy the jars from jersy/lib and paste in the web-inf/lib folder of dynamic web proj.
+
+Jersy works on servlet container.
+---------------------------------
+
+For POST method we need a separate form.
+
+video 5- to reduce time to search for the root class inside the package
+we provide init param inside web.xml
+
+we can also use application class
